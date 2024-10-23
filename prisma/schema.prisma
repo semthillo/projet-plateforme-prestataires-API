@@ -12,3 +12,73 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Utilisateur {
+  id            Int       @id @default(autoincrement())
+  nom           String    @db.VarChar(100)
+  email         String    @unique @db.VarChar(50)
+  password      String    @db.VarChar(255)
+  adresse       String?
+  role          String    @db.VarChar(50)
+  heures_travail String?  @db.VarChar(50)
+  description   String?
+  telephone     String?   @db.VarChar(20)
+  statut        Boolean         @default(false)
+  profil        String?
+
+  domaines      Appartenir[]
+  publications  Publication[]
+  liensReseaux  LiensReseaux[]
+}
+
+model Domaine {
+  id   Int     @id @default(autoincrement())
+  nom  String  @db.VarChar(100)
+
+  utilisateurs Appartenir[]
+}
+
+model Publication {
+  id           Int       @id @default(autoincrement())
+  titre        String    @db.VarChar(100)
+  date_heure   DateTime
+  description  String?
+
+  utilisateur  Utilisateur @relation(fields: [utilisateur_id], references: [id])
+  utilisateur_id Int
+  images       Contenir[]
+}
+
+model Images {
+  id        Int        @id @default(autoincrement())
+  nom       String     @db.Text
+
+  publications Contenir[]
+}
+
+model LiensReseaux {
+  id           Int        @id @default(autoincrement())
+  url          String     @db.Text
+  type         String     @db.VarChar(100)
+
+  utilisateur  Utilisateur @relation(fields: [utilisateur_id], references: [id])
+  utilisateur_id Int
+}
+
+model Appartenir {
+  utilisateur   Utilisateur @relation(fields: [utilisateur_id], references: [id])
+  utilisateur_id Int
+  domaine       Domaine     @relation(fields: [domaine_id], references: [id])
+  domaine_id    Int
+
+  @@id([utilisateur_id, domaine_id])
+}
+
+model Contenir {
+  publication   Publication @relation(fields: [publication_id], references: [id])
+  publication_id Int
+  image         Images       @relation(fields: [image_id], references: [id])
+  image_id      Int
+
+  @@id([publication_id, image_id])
+}
