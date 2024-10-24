@@ -13,72 +13,74 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Utilisateur {
-  id            Int       @id @default(autoincrement())
-  nom           String    @db.VarChar(100)
-  email         String    @unique @db.VarChar(50)
-  password      String    @db.VarChar(255)
-  adresse       String?
-  role          String    @db.VarChar(50)
-  heures_travail String?  @db.VarChar(50)
-  description   String?
-  telephone     String?   @db.VarChar(20)
-  statut        Boolean         @default(false)
-  profil        String?
+model User {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  email       String    @unique @db.VarChar(50)
+  password    String    @db.VarChar(255)
+  address     String?   @db.Text
+  role        String    @db.VarChar(50)
+  hours       String?   @db.VarChar(50)
+  description String?   @db.Text
+  telephone   String?   @db.VarChar(20)
 
-  domaines      Appartenir[]
-  publications  Publication[]
-  liensReseaux  LiensReseaux[]
+  posts       Post[]
+  links       Links[]
+  domains     ToBelong[]
 }
 
-model Domaine {
-  id   Int     @id @default(autoincrement())
-  nom  String  @db.VarChar(100)
+model Domain {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(100)
 
-  utilisateurs Appartenir[]
+  users   ToBelong[]
 }
 
-model Publication {
-  id           Int       @id @default(autoincrement())
-  titre        String    @db.VarChar(100)
-  date_heure   DateTime
-  description  String?
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(100)
+  date_heure  DateTime
+  description String?   @db.Text
 
-  utilisateur  Utilisateur @relation(fields: [utilisateur_id], references: [id])
-  utilisateur_id Int
-  images       Contenir[]
+  user        User      @relation(fields: [user_id], references: [id])
+  user_id     Int
+  images      toContain[]
 }
 
 model Images {
   id        Int        @id @default(autoincrement())
-  nom       String     @db.Text
+  name      String     @db.Text
 
-  publications Contenir[]
+  posts     toContain[]
 }
 
-model LiensReseaux {
-  id           Int        @id @default(autoincrement())
-  url          String     @db.Text
-  type         String     @db.VarChar(100)
+model Links {
+  id        Int       @id @default(autoincrement())
+  url       String    @db.Text
+  type      String    @db.VarChar(100)
 
-  utilisateur  Utilisateur @relation(fields: [utilisateur_id], references: [id])
-  utilisateur_id Int
+  user      User      @relation(fields: [user_id], references: [id])
+  user_id   Int
 }
 
-model Appartenir {
-  utilisateur   Utilisateur @relation(fields: [utilisateur_id], references: [id])
-  utilisateur_id Int
-  domaine       Domaine     @relation(fields: [domaine_id], references: [id])
-  domaine_id    Int
+model ToBelong {
+  user      User     @relation(fields: [user_id], references: [id])
+  user_id   Int
+  domain    Domain   @relation(fields: [domain_id], references: [id])
+  domain_id Int
 
-  @@id([utilisateur_id, domaine_id])
+  @@id([user_id, domain_id])
 }
 
-model Contenir {
-  publication   Publication @relation(fields: [publication_id], references: [id])
-  publication_id Int
-  image         Images       @relation(fields: [image_id], references: [id])
-  image_id      Int
+model toContain {
+  post      Post     @relation(fields: [post_id], references: [id])
+  post_id   Int
+  image     Images   @relation(fields: [image_id], references: [id])
+  image_id  Int
 
-  @@id([publication_id, image_id])
+  @@id([post_id, image_id])
 }
+
+
+
+
