@@ -39,10 +39,10 @@ class PostCtrl {
         next();
     }
 
-    // Créer un nouveau post
+   
     static async createPost(req, res, next) {
         try {
-            const { title, date_heure, description, user_id, imageIds } = req.body;
+            const { title, date_heure, description, user_id, images=[] } = req.body;
 
             const newPost = await prisma.post.create({
                 data: {
@@ -50,11 +50,28 @@ class PostCtrl {
                     date_heure: new Date(date_heure),
                     description: description,
                     user: { connect: { id: user_id } },
-                    images: { connect: imageIds.map(id => ({ id })) }  
+                    
                 },
             });
 
+            for (let i = 0; i < images.length; i++) {
+                const newImage = await prisma.images.create({
+                data: {
+                    name: images[i]
+                }
+            })
+                const postImage = await prisma.toContain.create({
+                    data: {
+                        post_id: newPost.id,
+                        image_id: newImage.id
+                    }
+                })
+            
+            }
+            
+
             res.status(201).json(newPost);
+
         } catch (error) {
             console.error(error.message);
             res.status(500).json({ error: "Server error" });
@@ -75,7 +92,7 @@ class PostCtrl {
                     date_heure: new Date(date_heure),
                     description: description,
                     user: { connect: { id: user_id } },
-                    images: { set: imageIds.map(id => ({ id })) }  // Met à jour les images associées
+                    images: { set: imageIds.map(id => ({ id })) }  
                 },
             });
 
