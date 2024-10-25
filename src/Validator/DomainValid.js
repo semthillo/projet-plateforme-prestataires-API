@@ -6,7 +6,7 @@ import prisma from "../config/prisma";
 const createDomainValid = [
     check("name")
     .notEmpty()
-    .withMessage("")
+    .withMessage("Domain require !")
     .bail()
     .isLength(({ min: 3, max: 100 }))
     .withMessage("the domain name must be minimum 3 caracters and maximum 100 caracters")
