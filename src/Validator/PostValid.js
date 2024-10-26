@@ -1,6 +1,6 @@
 import { check, param, validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
-import prisma from "../config/prisma";
+import prisma from "../config/prisma.js";
 
 
 

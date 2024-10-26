@@ -1,62 +1,76 @@
 import { check, param, validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
-import prisma from "../config/prisma";
+import prisma from "../config/prisma.js";
 
+// Middleware pour gérer les erreurs de validation
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const formattedErrors = errors.array().map((error) => ({
+      field: error.param,
+      message: error.msg,
+    }));
+    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errors: formattedErrors });
+  }
+  next();
+};
 
-const createDomainValid = [
-    check("name")
+// Validation pour la création de domaine
+export const createDomainValid = [
+  check("name")
     .notEmpty()
-    .withMessage("Domain require !")
+    .withMessage("Domain name is required!")
     .bail()
-    .isLength(({ min: 3, max: 100 }))
-    .withMessage("the domain name must be minimum 3 caracters and maximum 100 caracters")
+    .isLength({ min: 3, max: 100 })
+    .withMessage("The domain name must be between 3 and 100 characters.")
     .bail()
-    .custom(async (value, { req }) => {
-        const result = await prisma.domain.findUnique(value)
-        if (result !== 0) {
-            throw new Error("This domain already exist !");
-          }
-          return true;
-    })
+    .custom(async (value) => {
+      const result = await prisma.domain.findUnique({
+        where: { name: value },
+      });
+      if (result) {
+        throw new Error("This domain already exists!");
+      }
+      return true;
+    }),
+  handleValidationErrors,
+];
 
-]
-
-const editDomainValid = [
-    param("id")
-    .not()
-    .isEmpty()
-    .withMessage("Id est obligatoire!")
+// Validation pour la modification de domaine
+export const editDomainValid = [
+  param("id")
+    .notEmpty()
+    .withMessage("ID is required!")
+    .bail()
+    .isInt()
+    .withMessage("ID must be an integer.")
     .bail(),
-    check("name")
+  check("name")
     .notEmpty()
-    .withMessage("")
+    .withMessage("Domain name is required!")
     .bail()
-    .isLength(({ min: 3, max: 100 }))
-    .withMessage("the domain name must be minimum 3 caracters and maximum 100 caracters")
-    .bail() 
-]
+    .isLength({ min: 3, max: 100 })
+    .withMessage("The domain name must be between 3 and 100 characters."),
+  handleValidationErrors,
+];
 
-const deleteDomainValid = [
-    param("id")
-    .not()
-    .isEmpty()
-    .withMessage("Id est obligatoire!")
+// Validation pour la suppression de domaine
+export const deleteDomainValid = [
+  param("id")
+    .notEmpty()
+    .withMessage("ID is required!")
     .bail()
-    .custom(async (value, { req }) => {
-        const result = await prisma.domain.findUnique(value)
-        if (result === 0) {
-          throw new Error("This domain isn't exist")
-        }
-        return true
-      }),
-      (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty())
-          return res
-            .status(StatusCodes.UNPROCESSABLE_ENTITY)
-            .json({ errors: errors.array() });
-        next();
-      },
-]
-
-export default { createDomainValid, editDomainValid, deleteDomainValid}
+    .isInt()
+    .withMessage("ID must be an integer.")
+    .bail()
+    .custom(async (value) => {
+      const result = await prisma.domain.findUnique({
+        where: { id: parseInt(value, 10) },
+      });
+      if (!result) {
+        throw new Error("This domain doesn't exist.");
+      }
+      return true;
+    }),
+  handleValidationErrors,
+];

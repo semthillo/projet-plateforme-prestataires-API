@@ -6,7 +6,7 @@ class DomainCtrl {
     static async getDomainById(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);
-            const result = await prisma.domaine.findUnique({
+            const result = await prisma.domain.findUnique({
                 where: {
                     id: id,
                 },
@@ -27,7 +27,7 @@ class DomainCtrl {
     
     static async getAllDomains(_req, res, next) {
         try {
-            const result = await prisma.domaine.findMany();
+            const result = await prisma.domain.findMany();
             res.json(result);
         } catch (error) {
             console.error(error.message);
@@ -41,9 +41,9 @@ class DomainCtrl {
         try {
             const { name } = req.body;
 
-            const newDomain = await prisma.domaine.create({
+            const newDomain = await prisma.domain.create({
                 data: {
-                    nom: name,
+                    name: name,
                 },
             });
 
@@ -61,10 +61,10 @@ class DomainCtrl {
             const id = parseInt(req.params.id, 10);
             const { name } = req.body;
 
-            const updatedDomain = await prisma.domaine.update({
+            const updatedDomain = await prisma.domain.update({
                 where: { id: id },
                 data: {
-                    nom: name,
+                    name: name,
                 },
             });
 
@@ -84,8 +84,9 @@ class DomainCtrl {
     static async deleteDomain(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);
+            console.log("Tentative de suppression du domaine avec ID :", id);
 
-            const deletedDomain = await prisma.domaine.delete({
+            const deletedDomain = await prisma.domain.delete({
                 where: { id: id },
             });
 

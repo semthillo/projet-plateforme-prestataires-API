@@ -39,7 +39,7 @@ class UserCtrl {
 
     static async createUser(req, res, next) {
         try {
-            const { name, email, password, role } = req.body;
+            const { name, email, password, role, address, telephone, description, hours } = req.body;
 
             
             const newUser = await prisma.user.create({
@@ -48,6 +48,10 @@ class UserCtrl {
                     email: email,
                     password: password,  
                     role: role,
+                    address: address,
+                    telephone: telephone,
+                    description: description,
+                    hours: hours,
                 },
             });
 
@@ -64,7 +68,13 @@ class UserCtrl {
 
     static async updateUser(req, res, next) {
         try {
-            const id = parseInt(req.params.id, 10);  
+             const id = parseInt(req.params.id, 10);
+        console.log("ID reçu dans updateUser:", id);
+
+        // Vérifier si l'ID est valide
+        if (isNaN(id)) {
+            return res.status(400).json({ error: "Invalid user ID format" });
+        }
             const { name, email, password, role, address, telephone, description, hours } = req.body;
     
             const updatedUser = await prisma.user.update({
@@ -74,10 +84,10 @@ class UserCtrl {
                     email: email,
                     password: password,  
                     role: role,
-                    adresse: address,
+                    address: address,
                     telephone: telephone,
                     description: description,
-                    heures_travail: hours,
+                    hours: hours,
                 },
             });
     
