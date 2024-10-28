@@ -1,10 +1,12 @@
 import prisma from "../config/prisma.js";
 // const prisma = new PrismaClient();
 import bcrypt from 'bcrypt';
-
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'; 
-
+dotenv.config();
 const SECRET_KEY = 'simplon2024';
+const RESET_SECRET = 'simplonMars2024';
 
 class UserCtrl {
     
@@ -100,6 +102,35 @@ class UserCtrl {
     }
 
 
+     static async resetPassword(req, res) {
+        try {
+            const { token, newPassword } = req.body;
+
+            // Vérifier le token de réinitialisation
+            const decoded = jwt.verify(token, RESET_SECRET);
+            const userId = decoded.id;
+
+            // Hacher le nouveau mot de passe
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+            // Mettre à jour le mot de passe de l'utilisateur
+            await prisma.user.update({
+                where: { id: userId },
+                data: { password: hashedPassword },
+            });
+
+            res.json({ message: "Password reset successfully" });
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                res.status(400).json({ error: "Token expired" });
+            } else {
+                console.error(error.message);
+                res.status(500).json({ error: "Server error" });
+            }
+        }
+    }
+
 
     static async updateUser(req, res, next) {
         try {
@@ -159,6 +190,47 @@ class UserCtrl {
             }
         }
         next();
+    }
+
+
+
+    static async requestPasswordReset(req, res) {
+        try {
+            const { email } = req.body;
+            const user = await prisma.user.findUnique({ where: { email } });
+
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            // Générer un token de réinitialisation avec une durée de vie courte (1 heure ici)
+            const resetToken = jwt.sign({ id: user.id }, RESET_SECRET, { expiresIn: '1h' });
+
+            // Configurer le transporteur d'email
+            const transporter = nodemailer.createTransport({
+                service: 'gmail', // Utilisez le service de votre choix
+                auth: {
+                    user: process.env.EMAIL,
+                    pass: process.env.PASSWORD,
+                },
+            });
+
+            // Construire l'URL de réinitialisation
+            const resetUrl = `http://localhost:3005/api/reset-password?token=${resetToken}`;
+
+            // Envoyer l'email
+            await transporter.sendMail({
+                from: 'Plateforme de mis en relation',
+                to: user.email,
+                subject: "Password Reset Request",
+                html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`,
+            });
+
+            res.json({ message: "Password reset email sent" });
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).json({ error: "Server error" });
+        }
     }
     
 }

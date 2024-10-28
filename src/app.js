@@ -16,7 +16,7 @@ dotenv.config();
 const app = express();
 
 app.use(bodyParser.json());
-
+app.use(i18n.init);
 app.use('/api', routerUser);
 app.use('/api', routerDomain);
 app.use('/api', routerPost);
