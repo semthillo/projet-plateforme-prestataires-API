@@ -1,5 +1,10 @@
 import prisma from "../config/prisma.js";
 // const prisma = new PrismaClient();
+import bcrypt from 'bcrypt';
+
+import jwt from 'jsonwebtoken'; 
+
+const SECRET_KEY = 'simplon2024';
 
 class UserCtrl {
     
@@ -41,12 +46,15 @@ class UserCtrl {
         try {
             const { name, email, password, role, address, telephone, description, hours } = req.body;
 
-            
+            // Hacher le mot de passe
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+
             const newUser = await prisma.user.create({
                 data: {
                     name: name,
                     email: email,
-                    password: password,  
+                    password: hashedPassword,  
                     role: role,
                     address: address,
                     telephone: telephone,
@@ -55,7 +63,7 @@ class UserCtrl {
                 },
             });
 
-            res.status(201).json(newUser);
+            res.status(201).json({ ...newUser, password: undefined });
         } catch (error) {
             console.error(error.message);
             res.status(500).json({ error: "Server error" });
@@ -63,6 +71,33 @@ class UserCtrl {
         next();
     }
 
+    static async loginUser(req, res, next) {
+        try {
+            const { email, password } = req.body;
+
+            const user = await prisma.user.findUnique({
+                where: { email: email },
+            });
+
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return res.status(401).json({ message: "Invalid credentials" });
+            }
+
+            
+            const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '1h' }); // 1h de validité
+
+            res.json({ message: "Login successful", token });
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).json({ error: "Server error" });
+        }
+        next();
+    }
 
 
 

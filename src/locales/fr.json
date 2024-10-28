@@ -1,0 +1,37 @@
+{
+    "validation": {
+      "domain": {
+        "required": "Le nom de domaine est requis !",
+        "length": "Le nom de domaine doit contenir entre 3 et 100 caractères.",
+        "exists": "Ce domaine existe déjà !"
+      },
+      "id": {
+        "required": "L'ID est requis !",
+        "integer": "L'ID doit être un entier.",
+        "notExist": "Ce domaine n'existe pas."
+      },
+        "post": {
+          "titleRequired": "Le titre est requis !",
+          "titleLength": "Le titre doit comporter entre 6 et 100 caractères.",
+          "dateRequired": "La date et l'heure sont requises !",
+          "postNotExist": "Ce post n'existe pas."
+        },
+       
+        "user": {
+          "nameRequired": "Le nom ne peut pas être vide !",
+          "nameLength": "Le nom doit comporter au moins 3 caractères !",
+          "emailRequired": "L'email ne peut pas être vide !",
+          "emailInvalid": "Le format de l'email est invalide !",
+          "emailMaxLength": "L'email doit comporter au maximum 50 caractères !",
+          "emailExists": "Cet email existe déjà !",
+          "passwordRequired": "Le mot de passe est requis !",
+          "passwordLength": "Le mot de passe doit comporter au moins 8 caractères !",
+          "roleRequired": "Le rôle est requis !",
+          "roleInvalid": "Le rôle doit être soit 'admin' soit 'prestataire'",
+          "phoneExists": "Ce numéro de téléphone existe déjà !",
+          "idRequired": "L'ID est requis !",
+          "userNotExist": "Cet utilisateur n'existe pas !"
+        }
+      }
+  }
+  

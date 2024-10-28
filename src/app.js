@@ -6,6 +6,8 @@ import routerUser from './routes/usersRoute.js';
 import routerDomain from './routes/domainRoute.js';
 import routerPost from './routes/postRoute.js';
 import routerLinks from './routes/linkRoute.js';
+import i18n from './i18n.js';
+
 
 
 
@@ -14,6 +16,7 @@ dotenv.config();
 const app = express();
 
 app.use(bodyParser.json());
+
 app.use('/api', routerUser);
 app.use('/api', routerDomain);
 app.use('/api', routerPost);

@@ -1,0 +1,39 @@
+{
+    "validation": {
+      "domain": {
+        "required": "Domain name is required!",
+        "length": "The domain name must be between 3 and 100 characters.",
+        "exists": "This domain already exists!"
+      },
+      "id": {
+        "required": "ID is required!",
+        "integer": "ID must be an integer.",
+        "notExist": "This domain doesn't exist."
+      },
+      "post": {
+        "titleRequired": "Title is required!",
+        "titleLength": "The title must be between 6 and 100 characters.",
+        "dateRequired": "Date and time are required!",
+        "postNotExist": "This post does not exist."
+      },
+      
+        "user": {
+          "nameRequired": "Name can't be empty!",
+          "nameLength": "Name must be at least 3 characters long!",
+          "emailRequired": "Email can't be empty!",
+          "emailInvalid": "Email format is invalid!",
+          "emailMaxLength": "Email must be at most 50 characters!",
+          "emailExists": "Email already exists!",
+          "passwordRequired": "Password is required!",
+          "passwordLength": "Password must be at least 8 characters!",
+          "roleRequired": "Role is required!",
+          "roleInvalid": "Role must be either 'admin' or 'prestataire'",
+          "phoneExists": "This phone number already exists!",
+          "idRequired": "Id is required!",
+          "userNotExist": "User does not exist!"
+        }
+      }
+  }
+
+  
+ 

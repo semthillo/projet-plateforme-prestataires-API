@@ -1,8 +1,9 @@
 import { check, param, validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
-import prisma from "../config/prisma.js";
 
-// Middleware pour gérer les erreurs de validation
+import prisma from "../config/prisma.js";
+import i18n from "../i18n.js";
+
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -19,17 +20,17 @@ const handleValidationErrors = (req, res, next) => {
 export const createDomainValid = [
   check("name")
     .notEmpty()
-    .withMessage("Domain name is required!")
+    .withMessage(i18n.__("validation.domain.required"))
     .bail()
     .isLength({ min: 3, max: 100 })
-    .withMessage("The domain name must be between 3 and 100 characters.")
+    .withMessage(i18n.__("validation.domain.length"))
     .bail()
     .custom(async (value) => {
       const result = await prisma.domain.findUnique({
         where: { name: value },
       });
       if (result) {
-        throw new Error("This domain already exists!");
+        throw new Error(i18n.__("validation.domain.exists"));
       }
       return true;
     }),
@@ -40,17 +41,17 @@ export const createDomainValid = [
 export const editDomainValid = [
   param("id")
     .notEmpty()
-    .withMessage("ID is required!")
+    .withMessage(i18n.__("validation.id.required"))
     .bail()
     .isInt()
-    .withMessage("ID must be an integer.")
+    .withMessage(i18n.__("validation.id.integer"))
     .bail(),
   check("name")
     .notEmpty()
-    .withMessage("Domain name is required!")
+    .withMessage(i18n.__("validation.domain.required"))
     .bail()
     .isLength({ min: 3, max: 100 })
-    .withMessage("The domain name must be between 3 and 100 characters."),
+    .withMessage(i18n.__("validation.domain.length")),
   handleValidationErrors,
 ];
 
@@ -58,17 +59,17 @@ export const editDomainValid = [
 export const deleteDomainValid = [
   param("id")
     .notEmpty()
-    .withMessage("ID is required!")
+    .withMessage(i18n.__("validation.id.required"))
     .bail()
     .isInt()
-    .withMessage("ID must be an integer.")
+    .withMessage(i18n.__("validation.id.integer"))
     .bail()
     .custom(async (value) => {
       const result = await prisma.domain.findUnique({
         where: { id: parseInt(value, 10) },
       });
       if (!result) {
-        throw new Error("This domain doesn't exist.");
+        throw new Error(i18n.__("validation.id.notExist"));
       }
       return true;
     }),

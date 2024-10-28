@@ -1,68 +1,65 @@
 import { check, param, validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
 import prisma from "../config/prisma.js";
+import i18n from "../i18n.js";
 
-// Middleware to handle validation errors
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // Reformate les erreurs pour ne retourner que les messages
     const formattedErrors = errors.array().map((error) => ({
-      field: error.path,
-      message: error.msg
+      field: error.param,
+      message: error.msg,
     }));
-    return res
-      .status(StatusCodes.UNPROCESSABLE_ENTITY)
-      .json({ errors: formattedErrors });
+    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errors: formattedErrors });
   }
   next();
 };
 
-
-// Validation for creating a user
+// Validation pour la création de l'utilisateur
 export const createUserValid = [
   check("name")
     .notEmpty()
-    .withMessage("Name can't be empty!")
+    .withMessage(i18n.__("validation.user.nameRequired"))
     .bail()
     .isLength({ min: 3 })
-    .withMessage("Name must be at least 3 characters long!")
+    .withMessage(i18n.__("validation.user.nameLength"))
     .bail(),
 
   check("email")
     .notEmpty()
-    .withMessage("Email can't be empty!")
+    .withMessage(i18n.__("validation.user.emailRequired"))
     .bail()
     .isEmail()
-    .withMessage("Email format is invalid!")
+    .withMessage(i18n.__("validation.user.emailInvalid"))
     .bail()
     .isLength({ max: 50 })
-    .withMessage("Email must be at most 50 characters!")
+    .withMessage(i18n.__("validation.user.emailMaxLength"))
     .bail()
     .custom(async (value) => {
       const result = await prisma.user.findUnique({
         where: { email: value },
       });
       if (result) {
-        throw new Error("Email already exists!");
+        throw new Error(i18n.__("validation.user.emailExists"));
+
       }
       return true;
     }),
 
   check("password")
     .notEmpty()
-    .withMessage("Password is required!")
+    .withMessage(i18n.__("validation.user.passwordRequired"))
     .bail()
     .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters!")
+    .withMessage(i18n.__("validation.user.passwordLength"))
     .bail(),
 
   check("role")
     .notEmpty()
-    .withMessage("Role is required!")
+    .withMessage(i18n.__("validation.user.roleRequired"))
     .bail()
     .isIn(['admin', 'prestataire'])
-    .withMessage("Role must be either 'admin' or 'prestataire'"),
+    .withMessage(i18n.__("validation.user.roleInvalid")),
 
   check("telephone")
     .optional()
@@ -71,7 +68,7 @@ export const createUserValid = [
         where: { telephone: value },
       });
       if (result) {
-        throw new Error("This phone number already exists!");
+        throw new Error(i18n.__("validation.user.phoneExists"));
       }
       return true;
     }),
@@ -79,58 +76,57 @@ export const createUserValid = [
   handleValidationErrors
 ];
 
-// Validation for editing a user
+// Validation pour la modification de l'utilisateur
 export const editUserValid = [
   param("id")
     .notEmpty()
-    .withMessage("Id is required!")
+    .withMessage(i18n.__("validation.user.idRequired"))
     .bail(),
 
   check("name")
     .optional()
     .isLength({ min: 3 })
-    .withMessage("Name must be at least 3 characters long!")
+    .withMessage(i18n.__("validation.user.nameLength"))
     .bail(),
 
   check("email")
     .optional()
     .isEmail()
-    .withMessage("Email format is invalid!")
+    .withMessage(i18n.__("validation.user.emailInvalid"))
     .bail()
     .isLength({ max: 50 })
-    .withMessage("Email must be at most 50 characters!")
+    .withMessage(i18n.__("validation.user.emailMaxLength"))
     .bail(),
 
   check("password")
     .optional()
     .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters!")
+    .withMessage(i18n.__("validation.user.passwordLength"))
     .bail(),
 
   check("role")
     .optional()
     .isIn(['admin', 'prestataire'])
-    .withMessage("Role must be either 'admin' or 'prestataire'"),
+    .withMessage(i18n.__("validation.user.roleInvalid")),
 
   handleValidationErrors
 ];
 
-// Validation for deleting a user
+// Validation pour la suppression de l'utilisateur
 export const deleteUserValid = [
   param("id")
     .notEmpty()
-    .withMessage("Id is required!")
+    .withMessage(i18n.__("validation.user.idRequired"))
     .bail()
     .custom(async (value) => {
       const result = await prisma.user.findUnique({
         where: { id: parseInt(value, 10) }
       });
       if (!result) {
-        throw new Error("User does not exist!");
+        throw new Error(i18n.__("validation.user.userNotExist"));
       }
       return true;
     }),
 
   handleValidationErrors
 ];
-
