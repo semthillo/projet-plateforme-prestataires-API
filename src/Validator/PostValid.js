@@ -4,7 +4,7 @@ import prisma from "../config/prisma.js";
 
 
 
-const createPostValid = [
+export const createPostValid = [
     check("title")
     .isEmpty()
     .withMessage("title require !")
@@ -20,7 +20,7 @@ const createPostValid = [
 
 ]
 
-const editPostValid = [
+export const editPostValid = [
     param("id")
     .not()
     .isEmpty()
@@ -39,7 +39,7 @@ const editPostValid = [
    .bail(),
 ]
 
-const deletePostValid = [
+export const deletePostValid = [
     param("id")
     .not()
     .isEmpty()
@@ -64,6 +64,6 @@ const deletePostValid = [
 
 
 
-export default {
-    createPostValid, editPostValid, deletePostValid
-}
+// export default {
+//     createPostValid, editPostValid, deletePostValid
+// }

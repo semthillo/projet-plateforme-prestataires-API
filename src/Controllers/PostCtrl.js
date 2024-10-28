@@ -10,7 +10,7 @@ class PostCtrl {
                 where: {
                     id: id,  
                 },
-                include: { user: true, images: true }  // Inclure les relations User et Images
+                // include: { user: true, images: true }  // Inclure les relations User et Images
             });
 
             if (!result) {
@@ -29,7 +29,7 @@ class PostCtrl {
     static async getAllPosts(_req, res, next) {
         try {
             const result = await prisma.post.findMany({
-                include: { user: true, images: true }  // Inclure les relations User et Images
+                // include: { user: true, images: true }  // Inclure les relations User et Images
             });
             res.json(result);
         } catch (error) {
@@ -82,9 +82,16 @@ class PostCtrl {
   
     static async updatePost(req, res, next) {
         try {
-            const id = parseInt(req.params.id, 10);  
-            const { title, date_heure, description, user_id, imageIds } = req.body;
+            // Convertir l'ID en entier
+            const id = parseInt(req.params.id, 10);
     
+            if (isNaN(id)) {
+                return res.status(400).json({ error: "Invalid ID format" });
+            }
+    
+            const { title, date_heure, description, user_id, images = [] } = req.body;
+    
+            // Mettre à jour le post principal
             const updatedPost = await prisma.post.update({
                 where: { id: id },
                 data: {
@@ -92,10 +99,49 @@ class PostCtrl {
                     date_heure: new Date(date_heure),
                     description: description,
                     user: { connect: { id: user_id } },
-                    images: { set: imageIds.map(id => ({ id })) }  
                 },
             });
-
+    
+            // Supprimer les anciennes relations d'images
+            await prisma.toContain.deleteMany({
+                where: { post_id: updatedPost.id }
+            });
+    
+            // Ajouter ou mettre à jour les images et relations
+            for (let i = 0; i < images.length; i++) {
+                const imageName = images[i];
+    
+                // Vérifier si l'image existe déjà
+                const existingImage = await prisma.images.findUnique({
+                    where: { name: imageName }
+                });
+    
+                let imageId;
+    
+                if (existingImage) {
+                    // Mettre à jour l'image existante
+                    const updatedImage = await prisma.images.update({
+                        where: { id: existingImage.id },
+                        data: { name: imageName }
+                    });
+                    imageId = updatedImage.id;
+                } else {
+                    // Créer une nouvelle image si elle n'existe pas
+                    const newImage = await prisma.images.create({
+                        data: { name: imageName }
+                    });
+                    imageId = newImage.id;
+                }
+    
+                // Ajouter la relation entre le post et l'image
+                await prisma.toContain.create({
+                    data: {
+                        post_id: updatedPost.id,
+                        image_id: imageId
+                    }
+                });
+            }
+    
             res.json(updatedPost);
         } catch (error) {
             if (error.code === 'P2025') {
@@ -107,6 +153,9 @@ class PostCtrl {
         }
         next();
     }
+    
+    
+    
 
     // Supprimer un post
     static async deletePost(req, res, next) {

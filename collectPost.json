@@ -1,0 +1,128 @@
+{
+    "info": {
+      "name": "Post Collection",
+      "description": "Collection pour tester le modèle Post",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Create Post",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Premier post\",\n  \"date_heure\": \"2024-10-25T15:30:00.000Z\",\n  \"description\": \"Description du premier post\",\n  \"user_id\": 1,\n  \"images\": [\"image1.jpg\", \"image2.jpg\"]\n}"
+          },
+          "url": {
+            "raw": "http://localhost:3000/posts",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "3000",
+            "path": [
+              "posts"
+            ]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Get All Posts",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:3000/posts",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "3000",
+            "path": [
+              "posts"
+            ]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Get Post By ID",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:3000/posts/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "3000",
+            "path": [
+              "posts",
+              "1"
+            ]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Update Post",
+        "request": {
+          "method": "PUT",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Post modifié\",\n  \"date_heure\": \"2024-10-26T10:00:00.000Z\",\n  \"description\": \"Nouvelle description du post modifié\",\n  \"user_id\": 1,\n  \"images\": [\"new_image1.jpg\", \"new_image2.jpg\"]\n}"
+          },
+          "url": {
+            "raw": "http://localhost:3000/posts/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "3000",
+            "path": [
+              "posts",
+              "1"
+            ]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Delete Post",
+        "request": {
+          "method": "DELETE",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:3000/posts/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "3000",
+            "path": [
+              "posts",
+              "1"
+            ]
+          }
+        },
+        "response": []
+      }
+    ]
+  }
+  
