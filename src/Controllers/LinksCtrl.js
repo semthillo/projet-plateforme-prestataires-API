@@ -9,7 +9,7 @@ class LinksCtrl {
                 return res.status(400).json({ error: "Invalid link ID format" });
             }
 
-            const result = await prisma.links.findUnique({
+            const result = await prisma.socialLink.findUnique({
                 where: {
                     id: id,
                 },
@@ -29,7 +29,7 @@ class LinksCtrl {
 
     static async getAllLinks(_req, res, next) {
         try {
-            const result = await prisma.links.findMany();
+            const result = await prisma.socialLink.findMany();
             res.json(result);
         } catch (error) {
             console.error(error.message);
@@ -42,7 +42,7 @@ class LinksCtrl {
         try {
             const { url, type, user_id } = req.body;
 
-            const newLink = await prisma.links.create({
+            const newLink = await prisma.socialLink.create({
                 data: {
                     url: url,
                     type: type,
@@ -67,7 +67,7 @@ class LinksCtrl {
 
             const { url, type, user_id } = req.body;
 
-            const updatedLink = await prisma.links.update({
+            const updatedLink = await prisma.socialLink.update({
                 where: { id: id },
                 data: {
                     url: url,
@@ -95,7 +95,7 @@ class LinksCtrl {
                 return res.status(400).json({ error: "Invalid link ID format" });
             }
 
-            const deletedLink = await prisma.links.delete({
+            const deletedLink = await prisma.socialLink.delete({
                 where: { id: id },
             });
 

@@ -23,29 +23,29 @@ describe("LinksCtrl", () => {
         it("devrait retourner un lien s'il est trouvé", async () => {
             const mockLink = { id: 1, url: "http://example.com", type: "website", user_id: 1 };
             req.params = { id: "1" };
-            spyOn(prisma.links, "findUnique").and.returnValue(Promise.resolve(mockLink));
+            spyOn(prisma.socialLink, "findUnique").and.returnValue(Promise.resolve(mockLink));
 
             await LinksCtrl.getLinkById(req, res, next);
 
-            expect(prisma.links.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+            expect(prisma.socialLink.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
             expect(res.json).toHaveBeenCalledWith(mockLink);
             expect(res.status).not.toHaveBeenCalledWith(404);
         });
 
         it("devrait retourner 404 si le lien n'est pas trouvé", async () => {
             req.params = { id: "999" };
-            spyOn(prisma.links, "findUnique").and.returnValue(Promise.resolve(null));
+            spyOn(prisma.socialLink, "findUnique").and.returnValue(Promise.resolve(null));
 
             await LinksCtrl.getLinkById(req, res, next);
 
-            expect(prisma.links.findUnique).toHaveBeenCalledWith({ where: { id: 999 } });
+            expect(prisma.socialLink.findUnique).toHaveBeenCalledWith({ where: { id: 999 } });
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.status().json).toHaveBeenCalledWith({ message: "Link not found" });
         });
 
         it("devrait retourner 500 s'il y a une erreur serveur", async () => {
             req.params = { id: "1" };
-            spyOn(prisma.links, "findUnique").and.throwError("Erreur serveur");
+            spyOn(prisma.socialLink, "findUnique").and.throwError("Erreur serveur");
 
             await LinksCtrl.getLinkById(req, res, next);
 
@@ -60,16 +60,16 @@ describe("LinksCtrl", () => {
                 { id: 1, url: "http://example.com", type: "website", user_id: 1 },
                 { id: 2, url: "http://example.org", type: "blog", user_id: 2 },
             ];
-            spyOn(prisma.links, "findMany").and.returnValue(Promise.resolve(mockLinks));
+            spyOn(prisma.socialLink, "findMany").and.returnValue(Promise.resolve(mockLinks));
 
             await LinksCtrl.getAllLinks(req, res, next);
 
-            expect(prisma.links.findMany).toHaveBeenCalled();
+            expect(prisma.socialLink.findMany).toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(mockLinks);
         });
 
         it("devrait retourner 500 s'il y a une erreur serveur", async () => {
-            spyOn(prisma.links, "findMany").and.throwError("Erreur serveur");
+            spyOn(prisma.socialLink, "findMany").and.throwError("Erreur serveur");
 
             await LinksCtrl.getAllLinks(req, res, next);
 
@@ -82,11 +82,11 @@ describe("LinksCtrl", () => {
         it("devrait créer un nouveau lien", async () => {
             const mockLink = { id: 1, url: "http://example.com", type: "website", user_id: 1 };
             req.body = { url: "http://example.com", type: "website", user_id: 1 };
-            spyOn(prisma.links, "create").and.returnValue(Promise.resolve(mockLink));
+            spyOn(prisma.socialLink, "create").and.returnValue(Promise.resolve(mockLink));
 
             await LinksCtrl.createLink(req, res, next);
 
-            expect(prisma.links.create).toHaveBeenCalledWith({
+            expect(prisma.socialLink.create).toHaveBeenCalledWith({
                 data: {
                     url: "http://example.com",
                     type: "website",
@@ -99,7 +99,7 @@ describe("LinksCtrl", () => {
 
         it("devrait retourner 500 s'il y a une erreur serveur", async () => {
             req.body = { url: "http://example.com", type: "website", user_id: 1 };
-            spyOn(prisma.links, "create").and.throwError("Erreur serveur");
+            spyOn(prisma.socialLink, "create").and.throwError("Erreur serveur");
 
             await LinksCtrl.createLink(req, res, next);
 
@@ -113,11 +113,11 @@ describe("LinksCtrl", () => {
             const mockLink = { id: 1, url: "http://updated.com", type: "website", user_id: 1 };
             req.params = { id: "1" };
             req.body = { url: "http://updated.com", type: "website", user_id: 1 };
-            spyOn(prisma.links, "update").and.returnValue(Promise.resolve(mockLink));
+            spyOn(prisma.socialLink, "update").and.returnValue(Promise.resolve(mockLink));
 
             await LinksCtrl.updateLink(req, res, next);
 
-            expect(prisma.links.update).toHaveBeenCalledWith({
+            expect(prisma.socialLink.update).toHaveBeenCalledWith({
                 where: { id: 1 },
                 data: {
                     url: "http://updated.com",
@@ -131,7 +131,7 @@ describe("LinksCtrl", () => {
         it("devrait retourner 404 si le lien n'est pas trouvé", async () => {
             req.params = { id: "999" };
             req.body = { url: "http://updated.com", type: "website", user_id: 1 };
-            spyOn(prisma.links, "update").and.throwError({ code: "P2025" });
+            spyOn(prisma.socialLink, "update").and.throwError({ code: "P2025" });
 
             await LinksCtrl.updateLink(req, res, next);
 
@@ -142,7 +142,7 @@ describe("LinksCtrl", () => {
         it("devrait retourner 500 s'il y a une erreur serveur", async () => {
             req.params = { id: "1" };
             req.body = { url: "http://updated.com", type: "website", user_id: 1 };
-            spyOn(prisma.links, "update").and.throwError("Erreur serveur");
+            spyOn(prisma.socialLink, "update").and.throwError("Erreur serveur");
 
             await LinksCtrl.updateLink(req, res, next);
 
@@ -155,11 +155,11 @@ describe("LinksCtrl", () => {
         it("devrait supprimer un lien s'il est trouvé", async () => {
             const mockLink = { id: 1, url: "http://example.com", type: "website", user_id: 1 };
             req.params = { id: "1" };
-            spyOn(prisma.links, "delete").and.returnValue(Promise.resolve(mockLink));
+            spyOn(prisma.socialLink, "delete").and.returnValue(Promise.resolve(mockLink));
 
             await LinksCtrl.deleteLink(req, res, next);
 
-            expect(prisma.links.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+            expect(prisma.socialLink.delete).toHaveBeenCalledWith({ where: { id: 1 } });
             expect(res.json).toHaveBeenCalledWith({
                 message: "Link deleted successfully",
                 deletedLink: mockLink,
@@ -168,7 +168,7 @@ describe("LinksCtrl", () => {
 
         it("devrait retourner 404 si le lien n'est pas trouvé", async () => {
             req.params = { id: "999" };
-            spyOn(prisma.links, "delete").and.throwError({ code: "P2025" });
+            spyOn(prisma.socialLink, "delete").and.throwError({ code: "P2025" });
 
             await LinksCtrl.deleteLink(req, res, next);
 
@@ -178,7 +178,7 @@ describe("LinksCtrl", () => {
 
         it("devrait retourner 500 s'il y a une erreur serveur", async () => {
             req.params = { id: "1" };
-            spyOn(prisma.links, "delete").and.throwError("Erreur serveur");
+            spyOn(prisma.socialLink, "delete").and.throwError("Erreur serveur");
 
             await LinksCtrl.deleteLink(req, res, next);
 
