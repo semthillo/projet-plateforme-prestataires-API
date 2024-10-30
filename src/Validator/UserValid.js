@@ -41,7 +41,6 @@ export const createUserValid = [
       });
       if (result) {
         throw new Error(i18n.__("validation.user.emailExists"));
-
       }
       return true;
     }),
@@ -63,6 +62,9 @@ export const createUserValid = [
 
   check("telephone")
     .optional()
+    .isLength({ max: 20 })
+    .withMessage(i18n.__("validation.user.telephoneMaxLength"))
+    .bail()
     .custom(async (value) => {
       const result = await prisma.user.findUnique({
         where: { telephone: value },
@@ -72,6 +74,24 @@ export const createUserValid = [
       }
       return true;
     }),
+
+  check("address")
+    .optional()
+    .isLength({ max: 100 })
+    .withMessage(i18n.__("validation.user.addressMaxLength"))
+    .bail(),
+
+  check("availability")
+    .optional()
+    .isLength({ max: 50 })
+    .withMessage(i18n.__("validation.user.availabilityMaxLength"))
+    .bail(),
+
+  check("description")
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage(i18n.__("validation.user.descriptionMaxLength"))
+    .bail(),
 
   handleValidationErrors
 ];
@@ -108,6 +128,30 @@ export const editUserValid = [
     .optional()
     .isIn(['admin', 'prestataire'])
     .withMessage(i18n.__("validation.user.roleInvalid")),
+
+  check("telephone")
+    .optional()
+    .isLength({ max: 20 })
+    .withMessage(i18n.__("validation.user.telephoneMaxLength"))
+    .bail(),
+
+  check("address")
+    .optional()
+    .isLength({ max: 100 })
+    .withMessage(i18n.__("validation.user.addressMaxLength"))
+    .bail(),
+
+  check("availability")
+    .optional()
+    .isLength({ max: 50 })
+    .withMessage(i18n.__("validation.user.availabilityMaxLength"))
+    .bail(),
+
+  check("description")
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage(i18n.__("validation.user.descriptionMaxLength"))
+    .bail(),
 
   handleValidationErrors
 ];

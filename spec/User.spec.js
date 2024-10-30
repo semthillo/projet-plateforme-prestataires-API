@@ -1,7 +1,5 @@
-
 import prisma from "../src/config/prisma.js";
 import UserCtrl from "../src/Controllers/UserCtrl.js";
-
 
 describe("Tests du contrôleur UserCtrl", () => {
   let req, res, next;
@@ -34,7 +32,7 @@ describe("Tests du contrôleur UserCtrl", () => {
       await UserCtrl.getUserById(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.status().json).toHaveBeenCalledWith({ message: "User not found" });
+      expect(res.status().json).toHaveBeenCalledWith({ error: "User not found" });
     });
   });
 
@@ -71,6 +69,20 @@ describe("Tests du contrôleur UserCtrl", () => {
       expect(prisma.user.create).toHaveBeenCalledWith({ data: req.body });
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.status().json).toHaveBeenCalledWith(mockNewUser);
+    });
+
+    it("devrait retourner une erreur si l'email existe déjà", async () => {
+      req.body = {
+        name: "John Doe",
+        email: "john@example.com",
+        password: "password123",
+      };
+      spyOn(prisma.user, "create").and.throwError(new Error("Email already exists"));
+
+      await UserCtrl.createUser(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status().json).toHaveBeenCalledWith({ error: "Email already exists" });
     });
   });
 

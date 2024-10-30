@@ -7,6 +7,9 @@ import routerDomain from './routes/domainRoute.js';
 import routerProject from './routes/projectRoute.js';
 import routerLinks from './routes/linkRoute.js';
 import i18n from './i18n.js';
+import routerService from './routes/serviceRouter.js';
+
+
 
 
 
@@ -21,6 +24,7 @@ app.use('/api', routerUser);
 app.use('/api', routerDomain);
 app.use('/api', routerProject);
 app.use('/api', routerLinks);
+app.use('api', routerService)
 
 const port = 3005;
 app.listen(port, () => {

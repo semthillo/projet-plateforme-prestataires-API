@@ -1,0 +1,113 @@
+{
+    "info": {
+        "name": "Service API Collection",
+        "_postman_id": "your-unique-id",
+        "description": "Collection to test the Service API endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Get All Services",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/services",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["services"]
+                }
+            }
+        },
+        {
+            "name": "Get Service by ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/services/:id",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["services", ":id"],
+                    "variable": [
+                        {
+                            "key": "id",
+                            "value": "1"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Create Service",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"name\": \"Service Example\",\n    \"user_id\": 1\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/services",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["services"]
+                }
+            }
+        },
+        {
+            "name": "Update Service",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"name\": \"Updated Service Example\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/services/:id",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["services", ":id"],
+                    "variable": [
+                        {
+                            "key": "id",
+                            "value": "1"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Delete Service",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/services/:id",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["services", ":id"],
+                    "variable": [
+                        {
+                            "key": "id",
+                            "value": "1"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000/api",
+            "type": "string"
+        }
+    ]
+}
