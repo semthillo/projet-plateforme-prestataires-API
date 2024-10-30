@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// This is your updated Prisma schema file
 
 generator client {
   provider = "prisma-client-js"
@@ -14,18 +10,19 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(100)
-  email       String    @unique @db.VarChar(50)
-  password    String    @db.VarChar(255)
-  address     String?   @db.Text
-  role        String    @db.VarChar(50)
-  hours       String?   @db.VarChar(50)
-  description String?   @db.Text
-  telephone   String?   @db.VarChar(20)
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(100)
+  email       String      @unique @db.VarChar(50)
+  password    String      @db.VarChar(255)
+  address     String?     @db.VarChar(100)
+  role        String      @db.VarChar(50)
+  availability String?    @db.VarChar(50)
+  description String?     @db.Text
+  telephone   String?     @db.VarChar(20)
 
-  posts       Post[]
-  links       Links[]
+  projects    Project[]
+  socialLinks SocialLink[]
+  services    Service[]
   domains     ToBelong[]
 }
 
@@ -36,31 +33,40 @@ model Domain {
   users   ToBelong[]
 }
 
-model Post {
-  id          Int       @id @default(autoincrement())
-  title       String    @db.VarChar(100)
+model Project {
+  id          Int         @id @default(autoincrement())
+  title       String      @db.VarChar(100)
   date_heure  DateTime
-  description String?   @db.Text
+  description String?     @db.Text
+  companyName String?     @db.VarChar(100)
 
-  user        User      @relation(fields: [user_id], references: [id])
+  user        User        @relation(fields: [user_id], references: [id])
   user_id     Int
-  images      toContain[]
+  images      ToContain[]
 }
 
-model Images {
-  id        Int        @id @default(autoincrement())
-  name      String     @db.Text
+model Image {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.Text
 
-  posts     toContain[]
+  projects ToContain[]
 }
 
-model Links {
-  id        Int       @id @default(autoincrement())
-  url       String    @db.Text
-  type      String    @db.VarChar(100)
+model SocialLink {
+  id      Int       @id @default(autoincrement())
+  url     String    @db.Text
+  type    String    @db.VarChar(100)
 
-  user      User      @relation(fields: [user_id], references: [id])
-  user_id   Int
+  user    User      @relation(fields: [user_id], references: [id])
+  user_id Int
+}
+
+model Service {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(100)
+
+  user    User      @relation(fields: [user_id], references: [id])
+  user_id Int
 }
 
 model ToBelong {
@@ -72,15 +78,11 @@ model ToBelong {
   @@id([user_id, domain_id])
 }
 
-model toContain {
-  post      Post     @relation(fields: [post_id], references: [id])
-  post_id   Int
-  image     Images   @relation(fields: [image_id], references: [id])
+model ToContain {
+  project   Project  @relation(fields: [project_id], references: [id])
+  project_id Int
+  image     Image    @relation(fields: [image_id], references: [id])
   image_id  Int
 
-  @@id([post_id, image_id])
+  @@id([project_id, image_id])
 }
-
-
-
-

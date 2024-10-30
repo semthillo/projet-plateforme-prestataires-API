@@ -1,20 +1,18 @@
 import prisma from "../config/prisma.js";
 
-class PostCtrl {
-
-    // Récupérer un post par ID
-    static async getPostById(req, res, next) {
+class ProjectCtrl {
+    
+    
+    static async getProjectById(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);  
-            const result = await prisma.post.findUnique({
-                where: {
-                    id: id,  
-                },
-                // include: { user: true, images: true }  // Inclure les relations User et Images
+            const result = await prisma.project.findUnique({
+                where: { id: id },
+                include: { user: true, images: true }  // Inclure les relations User et Images
             });
 
             if (!result) {
-                return res.status(404).json({ message: "Post not found" });
+                return res.status(404).json({ message: "Project not found" });
             }
 
             res.json(result);
@@ -25,13 +23,50 @@ class PostCtrl {
         next();
     }
 
-    // Récupérer tous les posts
-    static async getAllPosts(_req, res, next) {
+    
+    static async getAllProjects(_req, res, next) {
         try {
-            const result = await prisma.post.findMany({
-                // include: { user: true, images: true }  // Inclure les relations User et Images
+            const result = await prisma.project.findMany({
+                include: { user: true, images: true }  
             });
             res.json(result);
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).json({ error: "Server error" });
+        }
+        next();
+    }
+
+    
+    static async createProject(req, res, next) {
+        try {
+            const { title, date_heure, description, user_id, images = [] } = req.body;
+
+            const newProject = await prisma.project.create({
+                data: {
+                    title: title,
+                    date_heure: new Date(date_heure),
+                    description: description,
+                    user: { connect: { id: user_id } },
+                },
+            });
+
+            for (let i = 0; i < images.length; i++) {
+                const newImage = await prisma.image.create({
+                    data: {
+                        name: images[i]
+                    }
+                });
+                await prisma.toContain.create({
+                    data: {
+                        project_id: newProject.id,
+                        image_id: newImage.id
+                    }
+                });
+            }
+
+            res.status(201).json(newProject);
+
         } catch (error) {
             console.error(error.message);
             res.status(500).json({ error: "Server error" });
@@ -40,59 +75,18 @@ class PostCtrl {
     }
 
    
-    static async createPost(req, res, next) {
+    static async updateProject(req, res, next) {
         try {
-            const { title, date_heure, description, user_id, images=[] } = req.body;
-
-            const newPost = await prisma.post.create({
-                data: {
-                    title: title,
-                    date_heure: new Date(date_heure),
-                    description: description,
-                    user: { connect: { id: user_id } },
-                    
-                },
-            });
-
-            for (let i = 0; i < images.length; i++) {
-                const newImage = await prisma.images.create({
-                data: {
-                    name: images[i]
-                }
-            })
-                const postImage = await prisma.toContain.create({
-                    data: {
-                        post_id: newPost.id,
-                        image_id: newImage.id
-                    }
-                })
-            
-            }
-            
-
-            res.status(201).json(newPost);
-
-        } catch (error) {
-            console.error(error.message);
-            res.status(500).json({ error: "Server error" });
-        }
-        next();
-    }
-
-  
-    static async updatePost(req, res, next) {
-        try {
-            // Convertir l'ID en entier
             const id = parseInt(req.params.id, 10);
-    
+
             if (isNaN(id)) {
                 return res.status(400).json({ error: "Invalid ID format" });
             }
-    
+
             const { title, date_heure, description, user_id, images = [] } = req.body;
-    
-            // Mettre à jour le post principal
-            const updatedPost = await prisma.post.update({
+
+         
+            const updatedProject = await prisma.project.update({
                 where: { id: id },
                 data: {
                     title: title,
@@ -101,51 +95,49 @@ class PostCtrl {
                     user: { connect: { id: user_id } },
                 },
             });
-    
-            // Supprimer les anciennes relations d'images
             await prisma.toContain.deleteMany({
-                where: { post_id: updatedPost.id }
+                where: { project_id: updatedProject.id }
             });
-    
-            // Ajouter ou mettre à jour les images et relations
+
+           
             for (let i = 0; i < images.length; i++) {
                 const imageName = images[i];
-    
-                // Vérifier si l'image existe déjà
-                const existingImage = await prisma.images.findUnique({
+
+                
+                const existingImage = await prisma.image.findUnique({
                     where: { name: imageName }
                 });
-    
+
                 let imageId;
-    
+
                 if (existingImage) {
-                    // Mettre à jour l'image existante
-                    const updatedImage = await prisma.images.update({
+                    
+                    const updatedImage = await prisma.image.update({
                         where: { id: existingImage.id },
                         data: { name: imageName }
                     });
                     imageId = updatedImage.id;
                 } else {
-                    // Créer une nouvelle image si elle n'existe pas
-                    const newImage = await prisma.images.create({
+                    
+                    const newImage = await prisma.image.create({
                         data: { name: imageName }
                     });
                     imageId = newImage.id;
                 }
-    
-                // Ajouter la relation entre le post et l'image
+
+                
                 await prisma.toContain.create({
                     data: {
-                        post_id: updatedPost.id,
+                        project_id: updatedProject.id,
                         image_id: imageId
                     }
                 });
             }
-    
-            res.json(updatedPost);
+
+            res.json(updatedProject);
         } catch (error) {
             if (error.code === 'P2025') {
-                res.status(404).json({ error: "Post not found" });
+                res.status(404).json({ error: "Project not found" });
             } else {
                 console.error(error.message);
                 res.status(500).json({ error: "Server error" });
@@ -153,23 +145,20 @@ class PostCtrl {
         }
         next();
     }
-    
-    
-    
 
-    // Supprimer un post
-    static async deletePost(req, res, next) {
+    // Supprimer un projet
+    static async deleteProject(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);  
 
-            const deletedPost = await prisma.post.delete({
+            const deletedProject = await prisma.project.delete({
                 where: { id: id },
             });
 
-            res.json({ message: "Post deleted successfully", deletedPost });
+            res.json({ message: "Project deleted successfully", deletedProject });
         } catch (error) {
             if (error.code === 'P2025') {
-                res.status(404).json({ error: "Post not found" });
+                res.status(404).json({ error: "Project not found" });
             } else {
                 console.error(error.message);
                 res.status(500).json({ error: "Server error" });
@@ -177,7 +166,6 @@ class PostCtrl {
         }
         next();
     }
-
 }
 
-export default PostCtrl;
+export default ProjectCtrl;

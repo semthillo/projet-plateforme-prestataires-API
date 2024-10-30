@@ -16,51 +16,54 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-export const createPostValid = [
+
+export const createProjectValid = [
   check("title")
     .notEmpty()
-    .withMessage(i18n.__("validation.post.titleRequired"))
+    .withMessage(i18n.__("validation.project.titleRequired"))
     .bail()
     .isLength({ min: 6, max: 100 })
-    .withMessage(i18n.__("validation.post.titleLength"))
+    .withMessage(i18n.__("validation.project.titleLength"))
     .bail(),
   check("date_heure")
     .notEmpty()
-    .withMessage(i18n.__("validation.post.dateRequired"))
+    .withMessage(i18n.__("validation.project.dateRequired"))
     .bail(),
   handleValidationErrors,
 ];
 
-export const editPostValid = [
+
+export const editProjectValid = [
   param("id")
     .notEmpty()
     .withMessage(i18n.__("validation.id.required"))
     .bail(),
   check("title")
     .notEmpty()
-    .withMessage(i18n.__("validation.post.titleRequired"))
+    .withMessage(i18n.__("validation.project.titleRequired"))
     .bail()
     .isLength({ min: 6, max: 100 })
-    .withMessage(i18n.__("validation.post.titleLength"))
+    .withMessage(i18n.__("validation.project.titleLength"))
     .bail(),
   check("date_heure")
     .notEmpty()
-    .withMessage(i18n.__("validation.post.dateRequired"))
+    .withMessage(i18n.__("validation.project.dateRequired"))
     .bail(),
   handleValidationErrors,
 ];
 
-export const deletePostValid = [
+
+export const deleteProjectValid = [
   param("id")
     .notEmpty()
     .withMessage(i18n.__("validation.id.required"))
     .bail()
     .custom(async (value) => {
-      const result = await prisma.post.findUnique({
+      const result = await prisma.project.findUnique({
         where: { id: parseInt(value, 10) }
       });
       if (!result) {
-        throw new Error(i18n.__("validation.post.postNotExist"));
+        throw new Error(i18n.__("validation.project.projectNotExist"));
       }
       return true;
     }),

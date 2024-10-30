@@ -1,0 +1,116 @@
+{
+    "info": {
+      "name": "ProjectAPI",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Get All Projects",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{baseUrl}}/projects",
+            "host": ["{{baseUrl}}"],
+            "path": ["projects"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Get Project by ID",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{baseUrl}}/projects/:id",
+            "host": ["{{baseUrl}}"],
+            "path": ["projects", ":id"],
+            "variable": [
+              {
+                "key": "id",
+                "value": "1"
+              }
+            ]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Create New Project",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"New Project Title\",\n  \"date_heure\": \"2024-11-10T10:00:00.000Z\",\n  \"description\": \"Description for new project\",\n  \"companyName\": \"New Company\",\n  \"user_id\": 1,\n  \"images\": [\"image1.png\", \"image2.png\"]\n}"
+          },
+          "url": {
+            "raw": "{{baseUrl}}/projects",
+            "host": ["{{baseUrl}}"],
+            "path": ["projects"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Update Project",
+        "request": {
+          "method": "PUT",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Updated Project Title\",\n  \"date_heure\": \"2024-11-11T11:00:00.000Z\",\n  \"description\": \"Updated description\",\n  \"companyName\": \"Updated Company\",\n  \"user_id\": 1,\n  \"images\": [\"updated_image1.png\", \"updated_image2.png\"]\n}"
+          },
+          "url": {
+            "raw": "{{baseUrl}}/projects/:id",
+            "host": ["{{baseUrl}}"],
+            "path": ["projects", ":id"],
+            "variable": [
+              {
+                "key": "id",
+                "value": "1"
+              }
+            ]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Delete Project",
+        "request": {
+          "method": "DELETE",
+          "header": [],
+          "url": {
+            "raw": "{{baseUrl}}/projects/:id",
+            "host": ["{{baseUrl}}"],
+            "path": ["projects", ":id"],
+            "variable": [
+              {
+                "key": "id",
+                "value": "1"
+              }
+            ]
+          }
+        },
+        "response": []
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:3000"
+      }
+    ]
+  }
+  
