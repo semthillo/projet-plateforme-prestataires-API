@@ -1,5 +1,3 @@
-// This is your updated Prisma schema file
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,28 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          Int         @id @default(autoincrement())
-  name        String      @db.VarChar(100)
-  email       String      @unique @db.VarChar(50)
-  password    String      @db.VarChar(255)
-  address     String?     @db.VarChar(100)
-  role        String      @db.VarChar(50)
-  availability String?    @db.VarChar(50)
-  description String?     @db.Text
-  telephone   String?     @db.VarChar(20)
+enum Role {
+  admin
+  prestataire
+}
 
-  projects    Project[]
-  socialLinks SocialLink[]
-  services    Service[]
-  domains     ToBelong[]
+model User {
+  id           Int         @id @default(autoincrement())
+  name         String      @db.VarChar(100)
+  email        String      @unique @db.VarChar(50)
+  password     String      @db.VarChar(255)
+  address      String?     @db.VarChar(50)
+  role         Role        @default(prestataire)
+  availability String?     @db.VarChar(50)
+  description  String?     @db.Text
+  telephone    String?     @unique @db.VarChar(20)
+  profil       String?     @db.VarChar(255)
+
+  projects     Project[]
+  socialLinks  SocialLink[]
+  services     Service[]
+  domains      UserDomain[]
 }
 
 model Domain {
   id      Int       @id @default(autoincrement())
   name    String    @db.VarChar(100)
 
-  users   ToBelong[]
+  users   UserDomain[]
 }
 
 model Project {
@@ -42,14 +46,14 @@ model Project {
 
   user        User        @relation(fields: [user_id], references: [id])
   user_id     Int
-  images      ToContain[]
+  images      ProjectImage[]
 }
 
 model Image {
   id      Int       @id @default(autoincrement())
   name    String    @db.Text
 
-  projects ToContain[]
+  projects ProjectImage[]
 }
 
 model SocialLink {
@@ -69,7 +73,7 @@ model Service {
   user_id Int
 }
 
-model ToBelong {
+model UserDomain {
   user      User     @relation(fields: [user_id], references: [id])
   user_id   Int
   domain    Domain   @relation(fields: [domain_id], references: [id])
@@ -78,7 +82,7 @@ model ToBelong {
   @@id([user_id, domain_id])
 }
 
-model ToContain {
+model ProjectImage {
   project   Project  @relation(fields: [project_id], references: [id])
   project_id Int
   image     Image    @relation(fields: [image_id], references: [id])

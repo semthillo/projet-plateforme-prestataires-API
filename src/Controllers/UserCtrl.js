@@ -9,15 +9,37 @@ const SECRET_KEY = 'simplon2024';
 const RESET_SECRET = 'simplonMars2024';
 
 class UserCtrl {
-    
-    static async getUserById(req, res, next) {
+
+    // Fonction utilitaire pour hacher les mots de passe
+    static async hashPassword(password) {
+        const saltRounds = 10;
+        return bcrypt.hash(password, saltRounds);
+    }
+
+    // Fonction utilitaire pour générer un token
+    static generateToken(user) {
+        return jwt.sign({ id: user.id, role: user.role }, SECRET_KEY, { expiresIn: '1h' });
+    }
+
+    // Récupérer un utilisateur par son ID
+    static async getUserById(req, res) {
         try {
-            const id = parseInt(req.params.id, 10);  
+            const id = parseInt(req.params.id, 10);
             const result = await prisma.user.findUnique({
                 where: { id },
                 select: { 
-                    id: true, name: true, email: true, address: true, role: true,
-                    availability: true, description: true, telephone: true
+                    id: true,
+                    name: true,
+                    email: true,
+                    address: true,
+                    role: true,
+                    availability: true,
+                    description: true,
+                    telephone: true,
+                    profil: true,
+                    services: { select: { id: true, name: true }},
+                    socialLinks: { select: { id: true, url: true, type: true }},
+                    domains: { select: { domain: { select: { id: true, name: true }}}}
                 }
             });
 
@@ -30,87 +52,143 @@ class UserCtrl {
             console.error(error.message);
             res.status(500).json({ error: "Server error" });
         }
-        next();
     }
 
-    
-    static async getAllUsers(_req, res, next) {
+    // Récupérer tous les utilisateurs
+    static async getAllUsers(req, res) {
         try {
             const result = await prisma.user.findMany({
                 select: {
-                    id: true, name: true, email: true, address: true, role: true,
-                    availability: true, description: true, telephone: true
+                    id: true,
+                    name: true,
+                    email: true,
+                    address: true,
+                    role: true,
+                    availability: true,
+                    description: true,
+                    telephone: true,
+                    profil: true,
+                    domains: { select: { domain: { select: { name: true }}}}, 
+                    services: { select: { name: true }},
+                    socialLinks: { select: { url: true, type: true }}
                 }
             });
-            res.json(result);
+
+            const formattedResult = result.map(user => ({
+                ...user,
+                domains: user.domains.map(domain => domain.domain.name),
+                services: user.services.map(service => service.name),
+                socialLinks: user.socialLinks.map(link => ({ name: link.type, url: link.url }))
+            }));
+
+            res.json(formattedResult);
         } catch (error) {
             console.error(error.message);
             res.status(500).json({ error: "Server error" });
         }
-        next();
     }
 
-
-    static async createUser(req, res, next) {
+    
+    static async createUser(req, res) {
         try {
-            const { name, email, password, role, address, telephone, description, availability } = req.body;
-
-            // Hachage du mot de passe
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
-
+            const { name, email, password, role, address, telephone, description, availability, profil, domains, services, socialLinks } = req.body;
+    
+            // Vérification du rôle
+            if (!["admin", "prestataire"].includes(role)) {
+                return res.status(400).json({ error: "Invalid role. Must be 'admin' or 'prestataire'." });
+            }
+    
+            
+            const hashedPassword = await UserCtrl.hashPassword(password);
+    
+            
+            const existingServices = await prisma.service.findMany({
+                where: {
+                    name: {
+                        in: services  
+                    }
+                }
+            });
+            const validServiceIds = existingServices.map(service => service.id);
+    
+            
+            const existingDomains = await prisma.domain.findMany({
+                where: {
+                    name: {
+                        in: domains  
+                    }
+                }
+            });
+            const validDomainIds = existingDomains.map(domain => domain.id);
+    
+            
             const newUser = await prisma.user.create({
                 data: {
-                    name, email, password: hashedPassword, role, address,
-                    telephone, description, availability
+                    name, 
+                    email, 
+                    password: hashedPassword, 
+                    role, 
+                    address,
+                    telephone, 
+                    description, 
+                    availability, 
+                    profil,
+                    domains: validDomainIds.length > 0 ? {
+                        create: validDomainIds.map(domainId => ({
+                            domain: { connect: { id: domainId } }
+                        }))
+                    } : undefined,
+                    services: validServiceIds.length > 0 ? {
+                        connect: validServiceIds.map(serviceId => ({
+                            id: serviceId
+                        }))
+                    } : undefined,
+                    socialLinks: socialLinks && socialLinks.length > 0 ? {
+                        create: socialLinks.map(link => ({ url: link.url, type: link.type }))
+                    } : undefined
                 }
             });
-
+    
             res.status(201).json({ ...newUser, password: undefined });
         } catch (error) {
-            console.error(error.message);
-            res.status(500).json({ error: "Server error" });
+            if (error.code === 'P2002' && error.meta.target.includes('User_telephone_key')) {
+                res.status(400).json({ error: "Telephone number already in use" });
+            } else {
+                console.error(error.message);
+                res.status(500).json({ error: "Server error" });
+            }
         }
-        next();
     }
+    
+    
+    
+    
 
-    static async loginUser(req, res, next) {
+    // Connexion de l'utilisateur
+    static async login(req, res) {
+        const { email, password } = req.body;
         try {
-            const { email, password } = req.body;
-
-            const user = await prisma.user.findUnique({
-                where: { email }
-            });
-
-            if (!user) {
-                return res.status(404).json({ message: "User not found" });
+            const user = await prisma.user.findUnique({ where: { email }});
+            if (!user || !(await bcrypt.compare(password, user.password))) {
+                return res.status(401).json({ message: "Email ou mot de passe incorrect" });
             }
 
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) {
-                return res.status(401).json({ message: "Invalid credentials" });
-            }
-
-            const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '1h' });
-
-            res.json({ message: "Login successful", token });
+            const token = jwt.sign({ userId: user.id, role: user.role }, SECRET_KEY, { expiresIn: '1h' });
+            return res.json({ message: "Connexion réussie", token, role: user.role, userId: user.id });
         } catch (error) {
-            console.error(error.message);
-            res.status(500).json({ error: "Server error" });
+            res.status(500).json({ message: "Erreur lors de la connexion" });
         }
         next();
     }
 
-
+    // Réinitialiser le mot de passe
     static async resetPassword(req, res) {
         try {
             const { token, newPassword } = req.body;
-
             const decoded = jwt.verify(token, RESET_SECRET);
             const userId = decoded.id;
 
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+            const hashedPassword = await UserCtrl.hashPassword(newPassword);
 
             await prisma.user.update({
                 where: { id: userId },
@@ -128,90 +206,59 @@ class UserCtrl {
         }
     }
 
-
-    static async updateUser(req, res, next) {
+    // Mettre à jour un utilisateur
+    static async updateUser(req, res) {
         try {
             const id = parseInt(req.params.id, 10);
-
             if (isNaN(id)) {
                 return res.status(400).json({ error: "Invalid user ID format" });
             }
 
-            const { name, email, password, role, address, telephone, description, availability } = req.body;
-            const data = { name, email, role, address, telephone, description, availability };
+            const { name, email, password, role, address, telephone, description, availability, profil, domainIds, serviceIds, socialLinks } = req.body;
 
-            if (password) {
-                const saltRounds = 10;
-                data.password = await bcrypt.hash(password, saltRounds);
+            if (role && !["admin", "prestataire"].includes(role)) {
+                return res.status(400).json({ error: "Invalid role. Must be 'admin' or 'prestataire'." });
             }
+
+            const hashedPassword = password ? await UserCtrl.hashPassword(password) : undefined;
 
             const updatedUser = await prisma.user.update({
                 where: { id },
-                data
-            });
-
-            res.json({ ...updatedUser, password: undefined });
-        } catch (error) {
-            if (error.code === 'P2025') {
-                res.status(404).json({ error: "User not found" });
-            } else {
-                console.error(error.message);
-                res.status(500).json({ error: "Server error" });
-            }
-        }
-        next();
-    }
-    
-
-    static async deleteUser(req, res, next) {
-        try {
-            const id = parseInt(req.params.id, 10);  
-    
-            const deletedUser = await prisma.user.delete({
-                where: { id }
-            });
-    
-            res.json({ message: "User deleted successfully", deletedUser });
-        } catch (error) {
-            if (error.code === 'P2025') {
-                res.status(404).json({ error: "User not found" });
-            } else {
-                console.error(error.message);
-                res.status(500).json({ error: "Server error" });
-            }
-        }
-        next();
-    }
-
-    static async requestPasswordReset(req, res) {
-        try {
-            const { email } = req.body;
-            const user = await prisma.user.findUnique({ where: { email } });
-
-            if (!user) {
-                return res.status(404).json({ message: "User not found" });
-            }
-
-            const resetToken = jwt.sign({ id: user.id }, RESET_SECRET, { expiresIn: '1h' });
-
-            const transporter = nodemailer.createTransport({
-                service: 'gmail', 
-                auth: {
-                    user: process.env.EMAIL,
-                    pass: process.env.PASSWORD
+                data: {
+                    name, 
+                    email, 
+                    password: hashedPassword, 
+                    role, 
+                    address, 
+                    telephone, 
+                    description, 
+                    availability, 
+                    profil,
+                    domains: {
+                        create: domainIds?.map(domainId => ({ domain: { connect: { id: domainId }}}))
+                    },
+                    services: {
+                        connect: serviceIds?.map(serviceId => ({ id: serviceId }))
+                    },
+                    socialLinks: {
+                        create: socialLinks?.map(link => ({ url: link.url, type: link.type }))
+                    }
                 }
             });
 
-            const resetUrl = `http://localhost:3005/api/reset-password?token=${resetToken}`;
+            res.json({ updatedUser, password: undefined });
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).json({ error: "Server error" });
+        }
+    }
 
-            await transporter.sendMail({
-                from: 'Plateforme de mis en relation',
-                to: user.email,
-                subject: "Password Reset Request",
-                html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`
-            });
-
-            res.json({ message: "Password reset email sent" });
+    // Supprimer un utilisateur
+    static async deleteUser(req, res) {
+        try {
+            const id = parseInt(req.params.id, 10);
+            await prisma.user.delete({ where: { id } });
+            res.status(204).json({ message: "User deleted successfully" });
         } catch (error) {
             console.error(error.message);
             res.status(500).json({ error: "Server error" });

@@ -8,7 +8,7 @@ class ProjectCtrl {
             const id = parseInt(req.params.id, 10);  
             const result = await prisma.project.findUnique({
                 where: { id: id },
-                include: { user: true, images: true }  // Inclure les relations User et Images
+                include: { user: true, images: true }  
             });
 
             if (!result) {
@@ -22,6 +22,26 @@ class ProjectCtrl {
         }
         next();
     }
+    static async getProjectByUserId(req, res, next) {
+        try {
+            const id = parseInt(req.params.id, 10);  
+            const result = await prisma.project.findMany({
+                where: { user_id: id },
+                
+            });
+
+            if (!result) {
+                return res.status(404).json({ message: "Project not found" });
+            }
+
+            res.json(result);
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).json({ error: "Server error" });
+        }
+        next();
+    }
+
 
     
     static async getAllProjects(_req, res, next) {
@@ -57,7 +77,7 @@ class ProjectCtrl {
                         name: images[i]
                     }
                 });
-                await prisma.toContain.create({
+                await prisma.projectImage.create({
                     data: {
                         project_id: newProject.id,
                         image_id: newImage.id
@@ -92,7 +112,7 @@ class ProjectCtrl {
                     title: title,
                     date_heure: new Date(date_heure),
                     description: description,
-                    user: { connect: { id: user_id } },
+                    user: { connect: { id: parseInt(user_id, 10) } }
                 },
             });
             await prisma.toContain.deleteMany({

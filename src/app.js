@@ -8,7 +8,7 @@ import routerProject from './routes/projectRoute.js';
 import routerLinks from './routes/linkRoute.js';
 import i18n from './i18n.js';
 import routerService from './routes/serviceRouter.js';
-
+import cors from 'cors'
 
 
 
@@ -18,13 +18,15 @@ dotenv.config();
 
 const app = express();
 
+
+app.use(cors());
 app.use(bodyParser.json());
 app.use(i18n.init);
 app.use('/api', routerUser);
 app.use('/api', routerDomain);
 app.use('/api', routerProject);
 app.use('/api', routerLinks);
-app.use('api', routerService)
+app.use('/api', routerService)
 
 const port = 3005;
 app.listen(port, () => {

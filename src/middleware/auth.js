@@ -1,16 +1,37 @@
-const authenticateToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1]; 
-    if (!token) {
-        return res.sendStatus(401);
-    }
+// src/middleware/auth.js
 
-    jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) {
-            return res.sendStatus(403); 
-        }
-        req.user = user; 
-        next(); 
+import jwt from 'jsonwebtoken';
+
+
+export const authenticateToken = (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+    if (!token) return res.status(403).json({ message: 'Token manquant' });
+    
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) return res.status(403).json({ message: 'Token invalide' });
+        req.user = decoded;
+        next();
     });
 };
 
-export { authenticateToken };  
+
+export const verifyRole = (role) => {
+    return (req, res, next) => {
+        if (req.user.role !== role) {
+            return res.status(403).json({ message: 'Accès refusé, rôle insuffisant' });
+        }
+        next();
+    };
+};
+
+
+export const verifyToken = (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+    if (!token) return res.status(403).json({ message: 'Token manquant' });
+    
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) return res.status(403).json({ message: 'Token invalide' });
+        req.user = decoded;
+        next();
+    });
+};

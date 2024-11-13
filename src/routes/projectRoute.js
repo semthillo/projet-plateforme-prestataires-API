@@ -7,7 +7,7 @@ import {
 } from "../Validator/ProjectValid.js";  
 
 const routerProject = express.Router();
-
+routerProject.get("/projectuser/:id", ProjectCtrl.getProjectByUserId);
 
 routerProject.get("/projects/:id", ProjectCtrl.getProjectById);
 routerProject.get("/projects", ProjectCtrl.getAllProjects);

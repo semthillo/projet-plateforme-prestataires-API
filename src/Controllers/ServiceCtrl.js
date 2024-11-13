@@ -28,9 +28,7 @@ class ServiceCtrl {
     
     static async getAllServices(_req, res, next) {
         try {
-            const result = await prisma.service.findMany({
-               
-            });
+            const result = await prisma.service.findMany();
             res.json(result);
         } catch (error) {
             console.error(error.message);
@@ -63,13 +61,13 @@ class ServiceCtrl {
     static async updateService(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);
-            const { name, user_id } = req.body;
+            const { name } = req.body;
 
             const updatedService = await prisma.service.update({
                 where: { id: id },
                 data: {
                     name: name,
-                    user: { connect: { id: user_id } },
+                  
                 },
             });
 
