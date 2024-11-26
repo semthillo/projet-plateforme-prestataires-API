@@ -2,16 +2,16 @@ import { check, param, validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
 
 import prisma from "../config/prisma.js";
-import i18n from "../i18n.js";
 
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const formattedErrors = errors.array().map((error) => ({
-      field: error.param,
-      message: error.msg,
-    }));
-    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errors: formattedErrors });
+    // const formattedErrors = errors.array().map((error) => ({
+    //   field: error.param,
+    //   message: error.msg,
+    // }));
+    // return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errors: formattedErrors });
+    return res.status(400).json({ errors: errors.array() });
   }
   next();
 };
@@ -20,33 +20,33 @@ const handleValidationErrors = (req, res, next) => {
 export const createServiceValid = [
   check("name")
     .notEmpty()
-    .withMessage(i18n.__("validation.service.required"))
+    .withMessage("Le nom du service est obligatoire.")
     .bail()
     .isLength({ min: 3, max: 100 })
-    .withMessage(i18n.__("validation.service.length"))
+    .withMessage("Le nom du service doit contenir entre 3 et 100 caractères.")
     .bail()
     .custom(async (value) => {
       const result = await prisma.service.findUnique({
         where: { name: value },
       });
       if (result) {
-        throw new Error(i18n.__("validation.service.exists"));
+        throw new Error("Un service avec ce nom existe déjà.");
       }
       return true;
     }),
   check("user_id")
     .notEmpty()
-    .withMessage(i18n.__("validation.user.required"))
+    .withMessage("L'ID de l'utilisateur est obligatoire.")
     .bail()
     .isInt()
-    .withMessage(i18n.__("validation.user.integer"))
+    .withMessage("L'ID de l'utilisateur doit être un entier.")
     .bail()
     .custom(async (value) => {
       const userExists = await prisma.user.findUnique({
         where: { id: parseInt(value, 10) },
       });
       if (!userExists) {
-        throw new Error(i18n.__("validation.user.notExist"));
+        throw new Error("L'utilisateur spécifié n'existe pas.");
       }
       return true;
     }),
@@ -57,17 +57,17 @@ export const createServiceValid = [
 export const editServiceValid = [
   param("id")
     .notEmpty()
-    .withMessage(i18n.__("validation.id.required"))
+    .withMessage("L'ID du service est obligatoire.")
     .bail()
     .isInt()
-    .withMessage(i18n.__("validation.id.integer"))
+    .withMessage("L'ID du service doit être un entier.")
     .bail(),
   check("name")
     .notEmpty()
-    .withMessage(i18n.__("validation.service.required"))
+    .withMessage("Le nom du service est obligatoire.")
     .bail()
     .isLength({ min: 3, max: 100 })
-    .withMessage(i18n.__("validation.service.length")),
+    .withMessage("Le nom du service doit contenir entre 3 et 100 caractères."),
   handleValidationErrors,
 ];
 
@@ -75,17 +75,17 @@ export const editServiceValid = [
 export const deleteServiceValid = [
   param("id")
     .notEmpty()
-    .withMessage(i18n.__("validation.id.required"))
+    .withMessage("L'ID du service est obligatoire.")
     .bail()
     .isInt()
-    .withMessage(i18n.__("validation.id.integer"))
+    .withMessage("L'ID du service doit être un entier.")
     .bail()
     .custom(async (value) => {
       const result = await prisma.service.findUnique({
         where: { id: parseInt(value, 10) },
       });
       if (!result) {
-        throw new Error(i18n.__("validation.id.notExist"));
+        throw new Error("Le service spécifié n'existe pas.");
       }
       return true;
     }),

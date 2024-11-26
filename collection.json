@@ -1,117 +1,261 @@
 {
-    "info": {
-      "name": "User API Collection",
-      "_postman_id": "d94b3b30-45cf-4f4c-9256-b8eb8791c3dd",
-      "description": "Collection for testing User API endpoints",
-      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  "info": {
+    "name": "Plateforme de Services",
+    "description": "API pour la gestion des prestataires de services, projets, services et domaines",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentification",
+      "item": [
+        {
+          "name": "Connexion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/login",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"user@example.com\", \"password\": \"password123\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      
+        
+      ]
     },
-    "item": [
-      {
-        "name": "Get All Users",
-        "request": {
-          "method": "GET",
-          "header": [],
-          "url": {
-            "raw": "http://localhost:3005/api/users",
-            "protocol": "http",
-            "host": ["localhost"],
-            "port": "3005",
-            "path": ["api", "users"]
-          }
-        }
-      },
-      {
-        "name": "Get User by ID",
-        "request": {
-          "method": "GET",
-          "header": [],
-          "url": {
-            "raw": "http://localhost:3005/api/users/:id",
-            "protocol": "http",
-            "host": ["localhost"],
-            "port": "3005",
-            "path": ["api", "users", ":id"],
-            "variable": [
-              {
-                "key": "id",
-                "value": "1"
+    {
+      "name": "Gestion des Utilisateurs",
+      "item": [
+        {
+          "name": "Ajouter un utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/users",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "users"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"fullname\": \"John Doe\", \"username\": \"johndoe\", \"password\": \"password123\", \"type\": \"provider\", \"email\": \"johndoe@example.com\", \"address\": \"123 Street\", \"phone\": \"1234567890\", \"social\": \"@johndoe\", \"domain\": \"Plumbing\", \"working_hours\": \"9 AM - 6 PM\", \"description\": \"Experienced plumber.\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            ]
-          }
-        }
-      },
-      {
-        "name": "Create User",
-        "request": {
-          "method": "POST",
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "application/json"
             }
-          ],
-          "body": {
-            "mode": "raw",
-            "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"johndoe@example.com\",\n    \"password\": \"securepassword\",\n    \"role\": \"user\"\n}"
-          },
-          "url": {
-            "raw": "http://localhost:3005/api/users",
-            "protocol": "http",
-            "host": ["localhost"],
-            "port": "3005",
-            "path": ["api", "users"]
           }
-        }
-      },
-      {
-        "name": "Update User",
-        "request": {
-          "method": "PUT",
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "application/json"
+        },
+        {
+          "name": "Modifier un utilisateur",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/users/1",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "users", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"newUsername\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          ],
-          "body": {
-            "mode": "raw",
-            "raw": "{\n    \"name\": \"Jane Doe\",\n    \"email\": \"janedoe@example.com\",\n    \"password\": \"newpassword\",\n    \"role\": \"admin\",\n    \"address\": \"123 Main St\",\n    \"telephone\": \"123456789\",\n    \"description\": \"Updated description\",\n    \"hours\": \"9-5\"\n}"
-          },
-          "url": {
-            "raw": "http://localhost:3005/api/users/:id",
-            "protocol": "http",
-            "host": ["localhost"],
-            "port": "3005",
-            "path": ["api", "users", ":id"],
-            "variable": [
-              {
-                "key": "id",
-                "value": "1"
-              }
-            ]
+          }
+        },
+        {
+          "name": "Supprimer un utilisateur",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/users/1",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Afficher les utilisateurs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/users",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "users"]
+            }
           }
         }
-      },
-      {
-        "name": "Delete User",
-        "request": {
-          "method": "DELETE",
-          "header": [],
-          "url": {
-            "raw": "http://localhost:3005/api/users/:id",
-            "protocol": "http",
-            "host": ["localhost"],
-            "port": "3005",
-            "path": ["api", "users", ":id"],
-            "variable": [
-              {
-                "key": "id",
-                "value": "1"
+      ]
+    },
+    {
+      "name": "Gestion des Projets",
+      "item": [
+        {
+          "name": "Ajouter un projet",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/projects",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "projects"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Project Title\", \"company\": \"Company Name\", \"date\": \"2024-11-13\", \"description\": \"Project description\", \"images\": [\"image1.jpg\", \"image2.jpg\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            ]
+            }
+          }
+        },
+        {
+          "name": "Modifier un projet",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/projects/1",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "projects", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Updated Project Title\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer un projet",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/projects/1",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "projects", "1"]
+            }
+          }
+        },
+        {
+          "name": "Afficher les projets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/projects",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "projects"]
+            }
           }
         }
-      }
-    ]
-  }
-  
+      ]
+    },
+    {
+      "name": "Gestion des Services",
+      "item": [
+        {
+          "name": "Ajouter un service",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/services",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "services"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Service Name\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Recherche de services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/services?search=Service%20Name",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "services"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Service Name"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gestion des Domaines",
+      "item": [
+        {
+          "name": "Ajouter un domaine",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/domains",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "domains"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Domain Name\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Afficher les domaines",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/domains",
+              "host": ["http://localhost:3005"],
+              "path": ["api", "domains"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

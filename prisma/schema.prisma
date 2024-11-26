@@ -28,25 +28,75 @@ model User {
   socialLinks  SocialLink[]
   services     Service[]
   domains      UserDomain[]
+  userServices UserService[] // Relation n:m avec Service
 }
 
 model Domain {
-  id      Int       @id @default(autoincrement())
-  name    String    @db.VarChar(100)
+  id       Int       @id @default(autoincrement())
+  name     String    @unique  // Ajoutez @unique pour garantir l'unicité
 
-  users   UserDomain[]
+  users    UserDomain[]
+  projects Project[]
+  services Service[]  // Relation 1:n avec Service
 }
+
 
 model Project {
   id          Int         @id @default(autoincrement())
   title       String      @db.VarChar(100)
-  date_heure  DateTime
   description String?     @db.Text
   companyName String?     @db.VarChar(100)
 
-  user        User        @relation(fields: [user_id], references: [id])
+  user        User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id     Int
+
+  domain      Domain      @relation(fields: [domain_id], references: [id], onDelete: Cascade)
+  domain_id   Int
+
+  startDate   DateTime
+  endDate     DateTime?
+
   images      ProjectImage[]
+}
+
+model Service {
+  id       Int       @id @default(autoincrement())
+  name      String   @unique
+
+  user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id  Int
+
+  domain   Domain    @relation(fields: [domain_id], references: [id], onDelete: Cascade)
+  domain_id Int
+
+  userServices UserService[] // Relation n:m avec User
+}
+
+model UserDomain {
+  user      User     @relation(fields: [user_id], references: [id])
+  user_id   Int
+  domain    Domain   @relation(fields: [domain_id], references: [id])
+  domain_id Int
+
+  @@id([user_id, domain_id])
+}
+
+model UserService {
+  user      User     @relation(fields: [user_id], references: [id])
+  user_id   Int
+  service   Service  @relation(fields: [service_id], references: [id])
+  service_id Int
+
+  @@id([user_id, service_id])
+}
+
+model ProjectImage {
+  project   Project  @relation(fields: [project_id], references: [id])
+  project_id Int
+  image     Image    @relation(fields: [image_id], references: [id])
+  image_id  Int
+
+  @@id([project_id, image_id])
 }
 
 model Image {
@@ -61,32 +111,6 @@ model SocialLink {
   url     String    @db.Text
   type    String    @db.VarChar(100)
 
-  user    User      @relation(fields: [user_id], references: [id])
+  user    User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id Int
-}
-
-model Service {
-  id      Int       @id @default(autoincrement())
-  name    String    @db.VarChar(100)
-
-  user    User      @relation(fields: [user_id], references: [id])
-  user_id Int
-}
-
-model UserDomain {
-  user      User     @relation(fields: [user_id], references: [id])
-  user_id   Int
-  domain    Domain   @relation(fields: [domain_id], references: [id])
-  domain_id Int
-
-  @@id([user_id, domain_id])
-}
-
-model ProjectImage {
-  project   Project  @relation(fields: [project_id], references: [id])
-  project_id Int
-  image     Image    @relation(fields: [image_id], references: [id])
-  image_id  Int
-
-  @@id([project_id, image_id])
 }

@@ -3,11 +3,14 @@ import ProjectCtrl from "../Controllers/ProjectCtrl.js";
 import {
   createProjectValid, 
   editProjectValid,    
-  deleteProjectValid,  
+  deleteProjectValid,   
 } from "../Validator/ProjectValid.js";  
 
 const routerProject = express.Router();
 routerProject.get("/projectuser/:id", ProjectCtrl.getProjectByUserId);
+routerProject.get("/projectuser/:userId/:domainId", ProjectCtrl.getProjectByUserDomainId);
+routerProject.get("/projectdomain/:id", ProjectCtrl.getProjectByUserDomainId);
+routerProject.get("/projectsdomains/:id", ProjectCtrl.getProjectByDomainId);
 
 routerProject.get("/projects/:id", ProjectCtrl.getProjectById);
 routerProject.get("/projects", ProjectCtrl.getAllProjects);

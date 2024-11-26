@@ -1,0 +1,103 @@
+{
+    "info": {
+      "name": "ServiceCtrl API",
+      "description": "Collection de tests pour le contrôleur ServiceCtrl",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Get All Services",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:3005/api/services",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3005",
+            "path": ["services"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Get Service by ID",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:3005/api/services/1",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3005",
+            "path": ["services", "1"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Create Service",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"name\": \"Service Example\",\n  \"user_id\": 1,\n  \"domain_id\": 1\n}"
+          },
+          "url": {
+            "raw": "http://localhost:3005/api/services",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3005",
+            "path": ["services"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Update Service",
+        "request": {
+          "method": "PUT",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"name\": \"Updated Service Name\",\n  \"domain_id\": 2\n}"
+          },
+          "url": {
+            "raw": "http://localhost:3005/api/services/1",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3005",
+            "path": ["services", "1"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Delete Service",
+        "request": {
+          "method": "DELETE",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:3005/api/services/1",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3005",
+            "path": ["services", "1"]
+          }
+        },
+        "response": []
+      }
+    ]
+  }
+  

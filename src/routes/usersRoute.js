@@ -25,10 +25,12 @@ routerUser.get('/profile', authenticateToken, (req, res) => {
 
 // Autres routes utilisateurs
 routerUser.post('/reset-password', UserCtrl.resetPassword);
+routerUser.post('/request-reset-password', UserCtrl.requestPasswordReset);
 routerUser.get('/users/:id', UserCtrl.getUserById);
 routerUser.get('/users', UserCtrl.getAllUsers);
-routerUser.post('/users',  UserCtrl.createUser);
-
+routerUser.post('/users', createUserValid,   UserCtrl.createUser);
+routerUser.get('/userByDomain/:domainName',  UserCtrl.getUsersByDomain);
+routerUser.get('/userByService/:serviceId',  UserCtrl.getUserByService);
 
 routerUser.put('/users/:id', editUserValid, UserCtrl.updateUser);   
 routerUser.delete('/users/:id', deleteUserValid, UserCtrl.deleteUser);

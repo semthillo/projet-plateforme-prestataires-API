@@ -1,96 +1,113 @@
 import { check, param, validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
 import prisma from "../config/prisma.js";
-import i18n from "../i18n.js";
+// import i18n from "../i18n.js";
 
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
+
   if (!errors.isEmpty()) {
-    const formattedErrors = errors.array().map((error) => ({
-      field: error.param,
-      message: error.msg,
-    }));
-    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errors: formattedErrors });
+    
+    // const formattedErrors = errors.array().map((error) => ({
+    //   field: error.param, 
+    //   message: error.msg, 
+    //   path: error.location, 
+    // }));
+    return res.status(400).json({ errors: errors.array() });
+
+    // Retourner la réponse JSON formatée
+    // return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errors: formattedErrors });
   }
-  next();
+
+  next(); // Passer au middleware suivant si aucune erreur
 };
 
 // Validation pour la création de l'utilisateur
 export const createUserValid = [
   check("name")
     .notEmpty()
-    .withMessage(i18n.__("validation.user.nameRequired"))
+    .withMessage("Le nom de l'utilisateur est obligatoire !")
     .bail()
     .isLength({ min: 3 })
-    .withMessage(i18n.__("validation.user.nameLength"))
+    .withMessage("Le nom de l'utilisateur doit avoir au moins 3 caractères !")
+    .bail()
+    .matches(/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9\s]+$/)
+    .withMessage("Le nom doit contenir des lettres et des chiffres, sans caractères spéciaux, et ne pas être uniquement des chiffres !")
     .bail(),
+
+
+
 
   check("email")
     .notEmpty()
-    .withMessage(i18n.__("validation.user.emailRequired"))
+    .withMessage("L'email de l'utilisateur est oligatoire !")
     .bail()
     .isEmail()
-    .withMessage(i18n.__("validation.user.emailInvalid"))
+    .withMessage("Veuillez entrez le bon format exemple: 'nom@exemple.com' !")
     .bail()
     .isLength({ max: 50 })
-    .withMessage(i18n.__("validation.user.emailMaxLength"))
+    .withMessage("l'email de l'utilisateur doit avoir maximum 50 caractères !")
     .bail()
     .custom(async (value) => {
       const result = await prisma.user.findUnique({
         where: { email: value },
       });
       if (result) {
-        throw new Error(i18n.__("validation.user.emailExists"));
+        throw new Error("Un utilisateur avec  cet email existe déja !")
       }
       return true;
     }),
 
   check("password")
     .notEmpty()
-    .withMessage(i18n.__("validation.user.passwordRequired"))
+    .withMessage("Le mot de passe est obligatoire !")
     .bail()
     .isLength({ min: 8 })
-    .withMessage(i18n.__("validation.user.passwordLength"))
+    .withMessage("Le mot de passe doit etre au minimum 8 caractères")
     .bail(),
 
   check("role")
     .notEmpty()
-    .withMessage(i18n.__("validation.user.roleRequired"))
+    .withMessage("Le role est obligatoire !")
     .bail()
     .isIn(['admin', 'prestataire'])
-    .withMessage(i18n.__("validation.user.roleInvalid")),
+    .withMessage("Le role doit etre 'admin' ou 'prestataire' !"),
 
-  check("telephone")
+    check("telephone")
     .optional()
     .isLength({ max: 20 })
-    .withMessage(i18n.__("validation.user.telephoneMaxLength"))
+    .withMessage("Le numéro de téléphone doit avoir maximum 20 caractères !")
+    .bail()
+    .matches(/^[0-9\s]+$/)
+    .withMessage("Le numéro de téléphone ne doit contenir que des chiffres et des espaces !")
     .bail()
     .custom(async (value) => {
       const result = await prisma.user.findUnique({
         where: { telephone: value },
       });
       if (result) {
-        throw new Error(i18n.__("validation.user.phoneExists"));
+        throw new Error("Ce numéro de téléphone appartient déjà à un utilisateur !");
       }
       return true;
     }),
+  
 
   check("address")
     .optional()
     .isLength({ max: 100 })
-    .withMessage(i18n.__("validation.user.addressMaxLength"))
+    .withMessage("l'adresse doit avoir maximum 100 caractère !")
     .bail(),
 
   check("availability")
     .optional()
     .isLength({ max: 50 })
-    .withMessage(i18n.__("validation.user.availabilityMaxLength"))
+    .withMessage("La disponibilité doit avoir maximum 50 caractères !")
     .bail(),
 
   check("description")
     .optional()
     .isLength({ max: 500 })
-    .withMessage(i18n.__("validation.user.descriptionMaxLength"))
+    .withMessage("La description doit avoir maximum 500 caractères !")
     .bail(),
 
   handleValidationErrors
@@ -100,57 +117,83 @@ export const createUserValid = [
 export const editUserValid = [
   param("id")
     .notEmpty()
-    .withMessage(i18n.__("validation.user.idRequired"))
+    .withMessage("L'id de l'utilisateur est réquit")
     .bail(),
 
-  check("name")
-    .optional()
+    check("name")
+    .notEmpty()
+    .withMessage("Le nom de l'utilisateur est obligatoire !")
+    .bail()
     .isLength({ min: 3 })
-    .withMessage(i18n.__("validation.user.nameLength"))
+    .withMessage("Le nom de l'utilisateur doit avoir au moins 3 caractères !")
+    .bail()
+    .matches(/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9\s]+$/)
+    .withMessage("Le nom doit contenir des lettres et des chiffres, sans caractères spéciaux, et ne pas être uniquement des chiffres !")
     .bail(),
+
+
 
   check("email")
     .optional()
     .isEmail()
-    .withMessage(i18n.__("validation.user.emailInvalid"))
+    .withMessage("L'email de l'utilisateur est oligatoire !")
+    .bail()
+    .isEmail()
+    .withMessage("Veuillez entrez le bon format !")
     .bail()
     .isLength({ max: 50 })
-    .withMessage(i18n.__("validation.user.emailMaxLength"))
+    .withMessage("l'email de l'utilisateur doit avoir maximum 50 caractères !")
     .bail(),
 
-  check("password")
-    .optional()
-    .isLength({ min: 8 })
-    .withMessage(i18n.__("validation.user.passwordLength"))
-    .bail(),
 
   check("role")
     .optional()
     .isIn(['admin', 'prestataire'])
-    .withMessage(i18n.__("validation.user.roleInvalid")),
+    .withMessage("Le role doit etre 'admin' ou 'prestataire' !"),
 
   check("telephone")
     .optional()
     .isLength({ max: 20 })
-    .withMessage(i18n.__("validation.user.telephoneMaxLength"))
-    .bail(),
+    .withMessage("Le numéro de téléphone doit avoir maximum 20 caractères !")
+    .bail()
+  
+    .custom(async (value, { req }) => {
+      const user = await prisma.user.findUnique({
+        where: { id: parseInt(req.params.id, 10) },
+      });
 
+      // Si le téléphone est identique à l'ancien, aucune vérification supplémentaire
+      if (user && user.telephone === value) {
+        return true;
+      }
+
+      // Vérification si le téléphone est déjà pris
+      const result = await prisma.user.findUnique({
+        where: { telephone: value },
+      });
+
+      if (result) {
+        throw new Error("Ce numéro de téléphone appartient déjà à un utilisateur !");
+      }
+
+      return true;
+    }),
   check("address")
     .optional()
     .isLength({ max: 100 })
-    .withMessage(i18n.__("validation.user.addressMaxLength"))
+    .withMessage("l'adresse doit avoir maximum 100 caractère !")
     .bail(),
 
   check("availability")
     .optional()
     .isLength({ max: 50 })
-    .withMessage(i18n.__("validation.user.availabilityMaxLength"))
+    .withMessage("La disponibilité doit avoir maximum 50 caractères !")
     .bail(),
 
   check("description")
     .optional()
     .isLength({ max: 500 })
-    .withMessage(i18n.__("validation.user.descriptionMaxLength"))
+    .withMessage("La description doit avoir maximum 500 caractères !")
     .bail(),
 
   handleValidationErrors
@@ -160,14 +203,14 @@ export const editUserValid = [
 export const deleteUserValid = [
   param("id")
     .notEmpty()
-    .withMessage(i18n.__("validation.user.idRequired"))
+    .withMessage("L'id de l'utilisateur est réquit")
     .bail()
     .custom(async (value) => {
       const result = await prisma.user.findUnique({
         where: { id: parseInt(value, 10) }
       });
       if (!result) {
-        throw new Error(i18n.__("validation.user.userNotExist"));
+        throw new Error("Cet utilisteur n'existe pas");
       }
       return true;
     }),
