@@ -2,15 +2,7 @@
 
 Une plateforme innovante permettant aux prestataires de services dans divers domaines (comme le bâtiment, les voyages, la location de matériel, etc.)  se rendre visibles auprès d'une clientèle élargie. Les clients peuvent accéder aux informations détaillées, consulter les offres, et contacter les prestataires via WhatsApp, e-mail, ou d'autres réseaux sociaux.
 
-## Table des Matières
-1. [Aperçu du Projet](#aperçu-du-projet)
-2. [Fonctionnalités](#fonctionnalités)
-3. [Technologies Utilisées](#technologies-utilisées)
-4. [Prise en main](#prise-en-main)
-5. [Conformité et Sécurité](#conformité-et-sécurité)
-6. [Contact](#contact)
 
----
 
 ## Aperçu du Projet
 Cette plateforme vise à offrir une expérience fluide pour les utilisateurs cherchant à découvrir des prestataires de services locaux et les contacter directement. Elle offre aux prestataires la possibilité de créer un profil personnalisé pour attirer plus de clients et augmenter leur visibilité en ligne.
@@ -24,47 +16,80 @@ Cette plateforme vise à offrir une expérience fluide pour les utilisateurs che
 - Gestion des domaines (ajout, modification, suppression, affichage)
 
 ## Technologies Utilisées
-- **Backend** : Node.js, Express
-- **Frontend** : Vue.js, Bootstrap pour le design réactif
-- **Base de Données** : PostgresSQL
-- **Authentification** : JWT 
+-  Node.js, Express
+-  PostgresSQL
+-  JWT 
+-  Prisma
+
+## Prérequis
+
+Avant de commencer, assurez-vous d'avoir installé les éléments suivants :
+
+- **Node.js**
+- **PostgreSQL**
+- **Postman** (pour tester l'API)
+
 
 ## Prise en main
 1. **Cloner le repository** :
-   ```bash
-   git clone https://github.com/votre-utilisateur/projet-plateforme-prestataires-API.git
+```bash
+   git clone https://github.com/semthillo/projet-plateforme-prestataires-API.git
    
    ```
+    Accédez au répertoire du projet :
+
+```bash
+    cd projet-plateforme-prestataires-API
+
+```
 2. **Installer les dépendances** :
 
-    ```bash
-    cd projet-plateforme-prestataires
+```bash
     npm install
-    ```
-3. **Configurer les variables d'environnement** :
 
-    Créer un fichier .env à la racine du projet.
-    Configurer les informations nécessaires : base de données, JWT_SECRET, etc.
+```
+        
+
+3. **Configurer la base de données** :
+
+    1. Assurez-vous que **postgresql** est en cours d'exécution sur votre machine.
+    2. Créez une base de données pour le projet.
+    3. Modifiez le fichier `.env.example` dans la racine du projet en le nommant `.env` pour y insérer les informations de connexion à la base de données.
+
 
 4. **Lancer le serveur** :
+pour lancer le servuer exécutez la commande suivant :
 
-    ```bash
+```bash
     npm start
-    ```
+```
 5. **Accéder à la plateforme** :
 
-    Par défaut, l'application sera accessible à 
-    ```bash
-    http://localhost:3005.
-    ```
+    l'application sera accessible à 
 
+```bash
+    http://localhost:3005/api.
+```
+## Utilisation de Prisma
+Prisma est utilisé pour gérer la base de données et faciliter les migrations ainsi que la génération des modèles. Vous devez exécuter les commandes suivantes pour préparer Prisma dans votre projet.
+
+### Générer les fichiers Prisma
+
+Après avoir configuré votre base de données et modifiez le fichier `.env`, vous devez générer les fichiers nécessaires à Prisma en utilisant la commande suivante :
+
+```bash
+npx prisma generate
+```
+
+```bash
+npx prisma migrate dev
+```
+
+## Documentation et teste avec Collection Postman
 
 6. **Importer la Collection Postman**
 
-    1. **Ouvrir Postman**.
-    2. Cliquez sur **Import**.
-    3. Sélectionnez **Raw Text**, puis collez le contenu JSON de la collection ci-jointe et cliquez sur **Continue**.
-    4. La collection nommée "Plateforme de Services" apparaîtra dans votre espace de travail, avec toutes les requêtes organisées par catégorie.
+    Pour tester les différents endpoints de l'API, vous pouvez utiliser la collection Postman à la racine du projet. Elle contient toutes les requêtes configurées pour interagir avec l'API.
 
 
 

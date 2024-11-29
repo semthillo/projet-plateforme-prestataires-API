@@ -34,7 +34,7 @@ export const createProjectValid = [
 
     check("companyName")
     .optional()
-    .isLength({ max: 50 })
+    .isLength({ max: 100 })
     .withMessage("Le nom de l'entreprise doit avoir maximum 50 caractères")
     .bail(),
 
@@ -75,7 +75,7 @@ export const editProjectValid = [
 
     check("companyName")
     .optional()
-    .isLength({ max: 50 })
+    .isLength({ max: 100 })
     .withMessage("Le nom de l'entreprise doit avoir maximum 50 caractères")
     .bail(),
 

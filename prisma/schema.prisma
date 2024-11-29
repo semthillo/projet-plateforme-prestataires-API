@@ -27,6 +27,7 @@ model User {
   projects     Project[]
   socialLinks  SocialLink[]
   services     Service[]
+  
   domains      UserDomain[]
   userServices UserService[] // Relation n:m avec Service
 }

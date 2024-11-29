@@ -41,7 +41,11 @@ class DomainCtrl {
                 include: {
                     users: {
                         include: {
-                            user: true, // Inclure les utilisateurs associés au domaine
+                            user: {
+                                select: {
+                                    name: true, // Inclure le champ 'name' du domaine
+                                },
+                            }, // Inclure les utilisateurs associés au domaine
                         },
                     },
                     projects: true, // Inclure les projets associés au domaine
@@ -128,13 +132,25 @@ class DomainCtrl {
             if (isNaN(id)) {
                 return res.status(400).json({ error: "Invalid ID" });
             }
-
+    
             console.log("Tentative de suppression du domaine avec ID :", id);
-
+    
+            // Vérifier s'il existe des utilisateurs associés au domaine
+            const associatedUsers = await prisma.userDomain.count({
+                where: { domain_id: id }
+            });
+    
+            if (associatedUsers > 0) {
+                return res.status(400).json({
+                    error: "Impossible de supprimer le domaine car il est associé à des utilisateurs."
+                });
+            }
+    
+            // Si aucun utilisateur n'est associé, procéder à la suppression du domaine
             const deletedDomain = await prisma.domain.delete({
                 where: { id },
             });
-
+    
             res.json({ message: "Domain deleted successfully", deletedDomain });
         } catch (error) {
             if (error.code === "P2025") {
@@ -146,6 +162,7 @@ class DomainCtrl {
         }
         next();
     }
+    
 }
 
 export default DomainCtrl;

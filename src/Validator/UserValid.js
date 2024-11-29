@@ -25,15 +25,16 @@ const handleValidationErrors = (req, res, next) => {
 // Validation pour la création de l'utilisateur
 export const createUserValid = [
   check("name")
-    .notEmpty()
-    .withMessage("Le nom de l'utilisateur est obligatoire !")
-    .bail()
-    .isLength({ min: 3 })
-    .withMessage("Le nom de l'utilisateur doit avoir au moins 3 caractères !")
-    .bail()
-    .matches(/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9\s]+$/)
-    .withMessage("Le nom doit contenir des lettres et des chiffres, sans caractères spéciaux, et ne pas être uniquement des chiffres !")
-    .bail(),
+  .notEmpty()
+  .withMessage("Le nom de l'utilisateur est obligatoire !")
+  .bail()
+  .isLength({ min: 3, max: 100 })
+  .withMessage("Le nom de l'utilisateur doit avoir au moins 3 caractères !")
+  .bail()
+  .matches(/^(?=.*[a-zA-Z])([a-zA-Z0-9\s]+)$/)
+  .withMessage("Le nom doit contenir au moins une lettre, peut inclure des chiffres, mais ne doit pas être uniquement des chiffres ou contenir des caractères spéciaux !")
+  .bail(),
+
 
 
 
@@ -94,7 +95,7 @@ export const createUserValid = [
 
   check("address")
     .optional()
-    .isLength({ max: 100 })
+    .isLength({ max: 50 })
     .withMessage("l'adresse doit avoir maximum 100 caractère !")
     .bail(),
 
@@ -124,12 +125,13 @@ export const editUserValid = [
     .notEmpty()
     .withMessage("Le nom de l'utilisateur est obligatoire !")
     .bail()
-    .isLength({ min: 3 })
+    .isLength({ min: 3, max: 100 })
     .withMessage("Le nom de l'utilisateur doit avoir au moins 3 caractères !")
     .bail()
-    .matches(/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9\s]+$/)
-    .withMessage("Le nom doit contenir des lettres et des chiffres, sans caractères spéciaux, et ne pas être uniquement des chiffres !")
+    .matches(/^(?=.*[a-zA-Z])([a-zA-Z0-9\s]+)$/)
+    .withMessage("Le nom doit contenir au moins une lettre, peut inclure des chiffres, mais ne doit pas être uniquement des chiffres ou contenir des caractères spéciaux !")
     .bail(),
+
 
 
 
@@ -180,7 +182,7 @@ export const editUserValid = [
     }),
   check("address")
     .optional()
-    .isLength({ max: 100 })
+    .isLength({ max: 50 })
     .withMessage("l'adresse doit avoir maximum 100 caractère !")
     .bail(),
 
